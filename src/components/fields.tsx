@@ -3,7 +3,7 @@ import { agents } from "@/config/agents";
 import { cn } from "@/lib/utils";
 
 export const controlClass =
-  "h-8 w-full rounded-lg border border-white/15 bg-[#0e1a2b]/70 px-2 text-sm text-foreground outline-none [color-scheme:dark] focus-visible:border-[#294c7d] focus-visible:ring-2 focus-visible:ring-[#294c7d]/60";
+  "h-10 w-full rounded-xl border border-[#e1e5ee] bg-white px-3 text-sm text-[#0e1a2b] outline-none focus-visible:border-[#294c7d] focus-visible:ring-2 focus-visible:ring-[#294c7d]/20";
 
 export function Field({
   label,
@@ -16,7 +16,7 @@ export function Field({
 }) {
   return (
     <label className={cn("flex min-w-0 flex-col gap-1", className)}>
-      <span className="text-[0.68rem] font-medium text-[#c5c5c5]">{label}</span>
+      <span className="text-xs font-medium text-[#5c5c5c]">{label}</span>
       {children}
     </label>
   );

@@ -17,7 +17,8 @@ import {
   pdsNote,
   yesNo,
 } from "@/config/forms";
-import type { PendingSubject } from "@/lib/sheet-tables";
+import { OutstandingList } from "@/components/readouts";
+import type { OutstandingNotary, PendingSubject } from "@/lib/sheet-tables";
 import type { ScrapedListing } from "@/lib/parse-listings";
 
 function FormCard({
@@ -47,17 +48,15 @@ function FormCard({
   );
 
   return (
-    <section
-      className={`rounded-xl border border-[#294c7d]/40 bg-white/[0.06] p-3 backdrop-blur-xl ${className ?? ""}`}
-    >
-      <h2 className="font-heading text-sm font-medium tracking-tight">{title}</h2>
-      <form ref={formRef} action={action} className="mt-2 flex flex-col gap-2">
+    <div className={className}>
+      <h2 className="sr-only">{title}</h2>
+      <form ref={formRef} action={action} className="flex flex-col gap-3">
         <input type="hidden" name="form" value={form} />
         {children}
         <button
           type="submit"
           disabled={pending}
-          className="h-8 rounded-lg bg-[#294c7d] px-3 text-xs font-medium text-white hover:bg-[#294c7d]/80 disabled:opacity-60"
+          className="mt-1 h-11 rounded-xl bg-[#0e1a2b] px-3 text-sm font-medium text-white hover:bg-[#294c7d] disabled:opacity-60"
         >
           {pending ? "Sending…" : "Submit"}
         </button>
@@ -66,15 +65,15 @@ function FormCard({
         <p
           className={
             state.status === "success"
-              ? "mt-2 text-xs text-emerald-200"
-              : "mt-2 text-xs text-red-200"
+              ? "mt-3 text-sm text-emerald-700"
+              : "mt-3 text-sm text-red-700"
           }
           role={state.status === "success" ? "status" : "alert"}
         >
           {state.message}
         </p>
       ) : null}
-    </section>
+    </div>
   );
 }
 
@@ -90,7 +89,7 @@ function PropertyField({
       <Field label="Property">
         <input name="property" required className={controlClass} placeholder="Address" />
         {listingsFailed ? (
-          <span className="text-[0.65rem] leading-snug text-amber-100">
+          <span className="text-[0.7rem] leading-snug text-amber-800">
             Listings could not be loaded. Type the address.
           </span>
         ) : null}
@@ -104,8 +103,8 @@ function PropertyField({
           Select
         </option>
         {listings.map((listing) => (
-          <option key={listing.mls} value={listing.address}>
-            {listing.address} ({listing.mls})
+          <option key={`${listing.mls}:${listing.address}`} value={listing.address}>
+            {listing.mls ? `${listing.address} (${listing.mls})` : listing.address}
           </option>
         ))}
       </select>
@@ -154,7 +153,7 @@ function NotaryForm({
         ) : (
           <Field label="Property">
             <input name="property" required className={controlClass} placeholder="Address" />
-            <span className="text-[0.65rem] text-[#c5c5c5]">No addresses in Notary Options yet.</span>
+            <span className="text-[0.65rem] text-[#5c5c5c]">No addresses in Notary Options yet.</span>
           </Field>
         )}
         <Field label="Side">
@@ -225,14 +224,14 @@ function RemoveForm({ pending }: { pending: PendingSubject[] }) {
           <input type="hidden" name="agent" value={row?.agent ?? ""} />
           <input type="hidden" name="subject_removal_date" value={row?.subjectRemovalDate ?? ""} />
           {row ? (
-            <p className="text-[0.68rem] text-[#c5c5c5]">
+            <p className="text-[0.68rem] text-[#5c5c5c]">
               {row.agent || "No agent on the sheet"} · {row.subjectRemovalDate || "No removal date"}
             </p>
           ) : null}
         </>
       ) : (
         <div className="grid gap-2 sm:grid-cols-2">
-          <p className="text-[0.68rem] text-[#c5c5c5] sm:col-span-2">
+          <p className="text-[0.68rem] text-[#5c5c5c] sm:col-span-2">
             No pending subjects on the sheet. Enter the details below.
           </p>
           <Field label="Property">
@@ -351,11 +350,11 @@ function NewListingFields() {
                 </option>
               ))}
             </select>
-            <span className="text-[0.68rem] leading-snug text-[#d5dbe6]">{pdsNote}</span>
+            <span className="text-[0.72rem] leading-snug text-[#5c5c5c]">{pdsNote}</span>
           </Field>
         ) : null}
         <div className="flex flex-col gap-1.5 sm:col-span-2">
-          <span className="text-[0.68rem] font-medium text-[#c5c5c5]">Seller Emails</span>
+          <span className="text-[0.68rem] font-medium text-[#5c5c5c]">Seller Emails</span>
           {emails.map((email, index) => (
             <div key={index} className="flex gap-1.5">
               <input
@@ -376,7 +375,7 @@ function NewListingFields() {
               {index > 1 ? (
                 <button
                   type="button"
-                  className="h-8 rounded-lg border border-white/15 px-2 text-[0.68rem] text-[#c5c5c5]"
+                  className="h-10 rounded-xl border border-[#e1e5ee] px-2 text-xs text-[#5c5c5c]"
                   onClick={() => setEmails((current) => current.filter((_, itemIndex) => itemIndex !== index))}
                 >
                   Remove
@@ -386,7 +385,7 @@ function NewListingFields() {
           ))}
           <button
             type="button"
-            className="h-7 self-start rounded-lg border border-white/15 px-2 text-[0.68rem] text-[#d5dbe6]"
+            className="h-8 self-start rounded-xl border border-[#e1e5ee] px-2.5 text-xs font-medium text-[#294c7d]"
             onClick={() => setEmails((current) => [...current, ""])}
           >
             + Add email
@@ -410,7 +409,7 @@ function NewListingFields() {
             ))}
           </select>
           {sourceConfig?.note ? (
-            <span className="text-[0.68rem] text-[#d5dbe6]">{sourceConfig.note}</span>
+            <span className="text-[0.72rem] text-[#5c5c5c]">{sourceConfig.note}</span>
           ) : null}
         </Field>
         {sourceConfig?.detail ? (
@@ -446,72 +445,119 @@ function NewListingFields() {
           <textarea name="notes" rows={2} className={`${controlClass} h-auto py-1.5`} />
         </Field>
       </div>
-      <p className="text-[0.72rem] font-medium text-[#d5dbe6]">{newListingReminder}</p>
+      <p className="text-sm font-medium text-[#294c7d]">{newListingReminder}</p>
     </>
   );
 }
 
-export function RequestForms({
+export function RequestFormPanel({
+  formId,
   listings,
   listingsFailed,
   notaryOptions,
   pendingSubjects,
+  outstandingNotary,
 }: {
+  formId: string;
   listings: ScrapedListing[];
   listingsFailed: boolean;
   notaryOptions: string[];
   pendingSubjects: PendingSubject[];
+  outstandingNotary: OutstandingNotary[];
 }) {
-  return (
-    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-      <NotaryForm options={notaryOptions} />
-      <RemoveForm pending={pendingSubjects} />
-      <NewListingForm />
+  if (formId === "notary") {
+    return (
+      <div className="flex flex-col gap-5">
+        <div>
+          <h3 className="text-xs font-semibold tracking-[0.12em] text-[#5c5c5c] uppercase">
+            Outstanding
+          </h3>
+          <div className="mt-2">
+            <OutstandingList rows={outstandingNotary} />
+          </div>
+        </div>
+        <NotaryForm options={notaryOptions} />
+      </div>
+    );
+  }
+  if (formId === "remove-subjects") return <RemoveForm pending={pendingSubjects} />;
+  if (formId === "new-listing") return <NewListingForm />;
+  if (formId === "pond") {
+    return (
       <FormCard title="Request Pond Access" form="pond">
         <AgentField />
       </FormCard>
+    );
+  }
+  if (formId === "buyers-guide") {
+    return (
       <FormCard title="Request Buyer's Guide" form="buyers-guide">
         <AgentField />
         <CopiesField min={copyLimits.buyersGuide.min} max={copyLimits.buyersGuide.max} />
       </FormCard>
+    );
+  }
+  if (formId === "feature-sheets") {
+    return (
       <FormCard title="Request Feature Sheets" form="feature-sheets">
         <PropertyField listings={listings} listingsFailed={listingsFailed} />
         <AgentField />
         <CopiesField min={copyLimits.featureSheets.min} max={copyLimits.featureSheets.max} />
       </FormCard>
+    );
+  }
+  if (formId === "strata") {
+    return (
       <FormCard title="Strata Documents" form="strata">
         <PropertyField listings={listings} listingsFailed={listingsFailed} />
         <AgentField />
       </FormCard>
+    );
+  }
+  if (formId === "listing-media") {
+    return (
       <FormCard title="Listing Media" form="listing-media">
         <PropertyField listings={listings} listingsFailed={listingsFailed} />
         <AgentField />
       </FormCard>
-      <FormCard title="MLS Sheet" form="mls">
+    );
+  }
+  if (formId === "mls") {
+    return (
+      <FormCard title="MLS Sheets" form="mls">
         <PropertyField listings={listings} listingsFailed={listingsFailed} />
         <AgentField />
       </FormCard>
+    );
+  }
+  if (formId === "vacation") {
+    return (
       <FormCard title="Submit Vacation Days" form="vacation">
         <AgentField />
         <Field label="Dates">
-          <span className="grid grid-cols-2 gap-1.5">
+          <span className="grid grid-cols-2 gap-2">
             <input name="start_date" type="date" required aria-label="Start date" className={controlClass} />
             <input name="end_date" type="date" required aria-label="End date" className={controlClass} />
           </span>
         </Field>
         <Field label="Notes">
-          <textarea name="notes" rows={2} className={`${controlClass} h-auto py-1.5`} />
+          <textarea name="notes" rows={2} className={`${controlClass} h-auto py-2`} />
         </Field>
       </FormCard>
-      <FormCard title="Submit Team Meeting Topic" form="meeting-topic">
+    );
+  }
+  if (formId === "meeting-topic") {
+    return (
+      <FormCard title="Team Meeting Topic" form="meeting-topic">
         <AgentField />
         <Field label="Topic">
           <input name="topic" required className={controlClass} />
         </Field>
         <Field label="Details">
-          <textarea name="details" rows={2} className={`${controlClass} h-auto py-1.5`} />
+          <textarea name="details" rows={3} className={`${controlClass} h-auto py-2`} />
         </Field>
       </FormCard>
-    </div>
-  );
+    );
+  }
+  return null;
 }

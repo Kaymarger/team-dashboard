@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { addressesMatch, parseFeaturedHtml } from "./parse-listings";
+import { addressesMatch, parseFeaturedHtml, titleCaseAddress, visibleListings } from "./parse-listings";
 import { importantDatesFrom, transactionsYtdFrom } from "./sheet-tables";
 import { buildRequest, RequestError } from "./requests";
 
@@ -44,7 +44,26 @@ test("address match ignores punctuation and mls suffix", () => {
     addressesMatch("104 3621 W 26th Avenue, Vancouver", "104 3621 W. 26th Avenue Vancouver"),
     true,
   );
+  assert.equal(addressesMatch("1939 W 12th Ave", "1939 W 12th Avenue"), true);
   assert.equal(addressesMatch("12 A St", "99 Other"), false);
+});
+
+test("addresses use title case and keep directionals", () => {
+  assert.equal(titleCaseAddress("1939 W 12TH AVENUE"), "1939 W 12th Ave");
+  assert.equal(titleCaseAddress("104 3621 w 26th avenue, vancouver"), "104 3621 W 26th Ave, Vancouver");
+  assert.equal(titleCaseAddress("90 SW Marine Drive"), "90 SW Marine Dr");
+});
+
+test("listing files hide sold addresses that are not on the sheet", () => {
+  const scraped = [
+    { address: "1939 W 12TH AVENUE, Vancouver", mls: "R3168453" },
+    { address: "104 3621 W 26th Avenue, Vancouver", mls: "R3183291" },
+  ];
+  assert.deepEqual(visibleListings(scraped, ["104 3621 w 26th avenue, vancouver"]), [
+    { address: "104 3621 W 26th Ave, Vancouver", mls: "R3183291" },
+  ]);
+  assert.equal(visibleListings(scraped, []).length, 2);
+  assert.equal(visibleListings(scraped, [])[0].address, "1939 W 12th Ave, Vancouver");
 });
 
 test("important dates show upcoming first", () => {

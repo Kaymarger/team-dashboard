@@ -34,7 +34,7 @@ function ActionRow({
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex h-7 items-center rounded-lg bg-[#294c7d] px-2.5 text-[0.72rem] font-medium text-white hover:bg-[#294c7d]/80"
+        className="inline-flex h-10 items-center rounded-xl bg-[#294c7d] px-3 text-xs font-medium text-white hover:bg-[#0e1a2b]"
       >
         Open {label}
       </a>
@@ -50,14 +50,14 @@ function ActionRow({
         <button
           type="submit"
           disabled={pending}
-          className="h-8 rounded-lg bg-[#294c7d] px-2.5 text-[0.72rem] font-medium text-white hover:bg-[#294c7d]/80 disabled:opacity-60"
+          className="h-10 rounded-xl bg-[#0e1a2b] px-3 text-xs font-medium text-white hover:bg-[#294c7d] disabled:opacity-60"
         >
           {pending ? "Sending…" : `Request ${label}`}
         </button>
       </div>
       {state ? (
         <p
-          className={state.status === "success" ? "text-[0.68rem] text-emerald-200" : "text-[0.68rem] text-red-200"}
+          className={state.status === "success" ? "text-xs text-emerald-700" : "text-xs text-red-700"}
           role={state.status === "success" ? "status" : "alert"}
         >
           {state.message}
@@ -76,37 +76,39 @@ export function ListingsCard({
 }) {
   const [open, setOpen] = useState<string | null>(null);
 
-  if (error) {
+  if (!listings.length && error) {
     return (
-      <p className="text-xs leading-relaxed text-amber-100">
-        Active listings could not be loaded. Type the address on the MLS Sheet
+      <p className="text-sm leading-relaxed text-amber-800">
+        Active listings could not be loaded. Type the address on the MLS Sheets
         and Strata Documents forms.
       </p>
     );
   }
 
   if (!listings.length) {
-    return <p className="text-xs text-[#c5c5c5]">No active listings right now.</p>;
+    return <p className="text-sm text-[#5c5c5c]">No active listings right now.</p>;
   }
 
   return (
-    <ul className="max-h-64 space-y-1 overflow-y-auto pr-1">
+    <ul className="max-h-80 space-y-2 overflow-y-auto pr-1">
       {listings.map((listing) => {
         const key = `${listing.mls}:${listing.address}`;
         const expanded = open === key;
         return (
-          <li key={key} className="rounded-lg border border-white/10 bg-black/15 px-2 py-1.5">
+          <li key={key} className="rounded-xl border border-[#e7ebf2] bg-[#f8fafc] px-3 py-2.5">
             <button
               type="button"
-              className="flex w-full items-baseline justify-between gap-2 text-left"
+              className="flex w-full items-baseline justify-between gap-3 text-left"
               aria-expanded={expanded}
               onClick={() => setOpen(expanded ? null : key)}
             >
-              <span className="text-xs font-medium text-foreground">{listing.address}</span>
-              <span className="shrink-0 text-[0.65rem] text-[#9fb4d4]">{listing.mls}</span>
+              <span className="text-sm font-medium text-[#0e1a2b]">{listing.address}</span>
+              {listing.mls ? (
+                <span className="shrink-0 text-[0.7rem] text-[#294c7d]">{listing.mls}</span>
+              ) : null}
             </button>
             {expanded ? (
-              <div className="mt-2 grid gap-2 border-t border-white/10 pt-2">
+              <div className="mt-3 grid gap-3 border-t border-[#e7ebf2] pt-3">
                 <ActionRow form="mls" label="MLS Sheet" href={listing.mlsUrl} property={listing.address} />
                 <ActionRow
                   form="strata"

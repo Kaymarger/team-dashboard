@@ -41,7 +41,7 @@ The backend bot fills every read-only tab. This app only reads them.
 | --- | --- | --- |
 | `Important Dates` | `date`, `title`, `notes` | Compact list, upcoming dates first (including today, America/Vancouver), then undated, then past. |
 | `Stats` | a row whose cell is `transactions_ytd`, and the next cell on that row is the number. A `key` / `value` header row is fine. | Transactions YTD card for 2026. |
-| `Listing Files` | `address`, `mls_url`, `strata_url` | On Current Listings, a matching address opens the link instead of sending a request. |
+| `Listing Files` | `address`, `mls_url`, `strata_url` | Active listings. Current Listings and every Property dropdown show these addresses (matched without caring about case). A matching address opens the MLS or strata link instead of sending a request. If this tab has no addresses, the page falls back to the featured-properties scrape. |
 | `Outstanding Notary` | `address`, `side`, `closing_date` | Compact list. |
 | `Notary Options` | `address` | Property dropdown on Submit Notary Info. |
 | `Pending Subjects` | `address`, `agent`, `subject_removal_date` | Property dropdown on Remove Subjects. The submitted row copies the agent and removal date from the chosen row. |
@@ -68,7 +68,7 @@ Each submitted row is the whole handoff.
 
 Open House Availability is only a link to the Google Form. It does not write a tab.
 
-Property dropdowns on Feature Sheets, Strata Documents, Listing Media, and MLS Sheet come from [the featured properties page](https://archibaldrealestate.ca/featured-properties/). The scrape is cached for about an hour. If the page cannot be read, those fields become a free-text address. Current Listings uses the same scrape. New Listing asks for a property address directly, because that home is not on the active list yet. Notary and Remove Subjects use their sheet tabs, and fall back to typed fields when those tabs are empty.
+Current Listings and the Property dropdowns on Feature Sheets, Strata Documents, Listing Media, and MLS Sheet use the `Listing Files` addresses, with capitalization normalized (directionals like W and SW stay uppercase). The [featured properties page](https://archibaldrealestate.ca/featured-properties/) is scraped and cached for about an hour only as a fallback when `Listing Files` has no addresses, and to attach an MLS number when one matches. If that page cannot be read and the tab is empty, those fields become a free-text address. New Listing asks for a property address directly, because that home is not on the active list yet. Notary and Remove Subjects use their own sheet tabs, and fall back to typed fields when those tabs are empty.
 
 Seller emails, list terms, lead sources, disclosure choices, and the notary detail fields are in `src/config/forms.ts`. Agent names are in `src/config/agents.ts`. Quick links and the open-house form are in `src/config/links.ts`.
 

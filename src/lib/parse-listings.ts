@@ -108,12 +108,136 @@ export function parseFeaturedHtml(
   return { ok: true, listings };
 }
 
+const STREET_ALIASES: Record<string, string> = {
+  avenue: "ave",
+  ave: "ave",
+  street: "st",
+  st: "st",
+  drive: "dr",
+  dr: "dr",
+  road: "rd",
+  rd: "rd",
+  boulevard: "blvd",
+  blvd: "blvd",
+  court: "ct",
+  crt: "ct",
+  ct: "ct",
+  crescent: "cres",
+  cres: "cres",
+  place: "pl",
+  pl: "pl",
+  lane: "ln",
+  ln: "ln",
+  highway: "hwy",
+  hwy: "hwy",
+  terrace: "terr",
+  terr: "terr",
+  circle: "cir",
+  cir: "cir",
+  parkway: "pkwy",
+  pkwy: "pkwy",
+};
+
+const STREET_LABELS: Record<string, string> = {
+  ave: "Ave",
+  st: "St",
+  dr: "Dr",
+  rd: "Rd",
+  blvd: "Blvd",
+  ct: "Ct",
+  cres: "Cres",
+  pl: "Pl",
+  ln: "Ln",
+  hwy: "Hwy",
+  terr: "Terr",
+  cir: "Cir",
+  pkwy: "Pkwy",
+  way: "Way",
+  trail: "Trail",
+};
+
+const DIRECTIONALS = new Set(["N", "S", "E", "W", "NE", "NW", "SE", "SW"]);
+
+const UPPER_TOKENS = new Set([
+  "BC",
+  "AB",
+  "SK",
+  "MB",
+  "ON",
+  "QC",
+  "NB",
+  "NS",
+  "PE",
+  "PEI",
+  "NL",
+  "YT",
+  "NT",
+  "NU",
+  "MLS",
+]);
+
 export function normalizeAddress(value: string): string {
   return value
     .toLowerCase()
     .replace(/\(mls[^)]*\)/g, " ")
     .replace(/[^a-z0-9]+/g, " ")
-    .trim();
+    .trim()
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => STREET_ALIASES[word] ?? word)
+    .join(" ");
+}
+
+function styleAddressToken(token: string): string {
+  if (/^#?\d+$/.test(token)) return token;
+  const ordinal = token.match(/^(\d+)(st|nd|rd|th)$/i);
+  if (ordinal) return `${ordinal[1]}${ordinal[2].toLowerCase()}`;
+  const upper = token.toUpperCase();
+  if (DIRECTIONALS.has(upper)) return upper;
+  if (UPPER_TOKENS.has(upper)) return upper;
+  if (/^[A-Z]\d[A-Z]$/i.test(token) || /^\d[A-Z]\d$/i.test(token)) return upper;
+  const street = STREET_ALIASES[token.toLowerCase()] ?? (STREET_LABELS[token.toLowerCase()] ? token.toLowerCase() : "");
+  if (street && STREET_LABELS[street]) return STREET_LABELS[street];
+  if (STREET_LABELS[token.toLowerCase()]) return STREET_LABELS[token.toLowerCase()];
+  return token.charAt(0).toUpperCase() + token.slice(1).toLowerCase();
+}
+
+/** Title case an address, keeping unit numbers and directionals uppercase. */
+export function titleCaseAddress(value: string): string {
+  return value
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/[A-Za-z0-9#]+/g, (token) => styleAddressToken(token));
+}
+
+/**
+ * Addresses to show in Current Listings and Property dropdowns.
+ * Listing Files wins when it has rows. An empty tab falls back to the scrape.
+ */
+export function visibleListings(
+  scraped: ScrapedListing[],
+  fileAddresses: string[],
+): ScrapedListing[] {
+  const files = fileAddresses.map((address) => address.trim()).filter(Boolean);
+  if (!files.length) {
+    return scraped.map((listing) => ({
+      address: titleCaseAddress(listing.address),
+      mls: listing.mls,
+    }));
+  }
+  const seen = new Set<string>();
+  const listings: ScrapedListing[] = [];
+  for (const address of files) {
+    const key = normalizeAddress(address);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    const hit = scraped.find((listing) => addressesMatch(listing.address, address));
+    listings.push({
+      address: titleCaseAddress(address),
+      mls: hit?.mls ?? "",
+    });
+  }
+  return listings;
 }
 
 export function addressesMatch(left: string, right: string): boolean {

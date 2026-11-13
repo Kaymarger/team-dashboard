@@ -24,27 +24,27 @@ export default async function LoginPage({
 
   return (
     <main className="relative flex min-h-screen items-center justify-center px-5 py-12">
-      <div className="w-full max-w-md rounded-3xl border border-[#294c7d]/40 bg-white/[0.07] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+      <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-[0_20px_60px_rgba(14,26,43,0.08)] ring-1 ring-[#0e1a2b]/5">
         <Image
           src={brand.logo}
           alt=""
           width={48}
           height={48}
-          className="h-12 w-12 rounded-lg bg-white object-contain p-1"
+          className="h-12 w-12 object-contain"
         />
-        <p className="mt-4 text-xs font-medium tracking-[0.18em] text-[#9fb4d4] uppercase">
+        <p className="mt-5 text-xs font-semibold tracking-[0.18em] text-[#294c7d] uppercase">
           {brand.name}
         </p>
-        <h1 className="mt-2 font-heading text-2xl font-medium tracking-tight text-foreground">
+        <h1 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-[#0e1a2b]">
           Sign in
         </h1>
-        <p className="mt-1.5 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm text-[#5c5c5c]">
           {brand.group}. Enter the team password.
         </p>
 
         {setup ? (
           <p
-            className="mt-4 rounded-2xl border border-amber-200/30 bg-amber-200/10 px-3 py-2 text-sm text-amber-100"
+            className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950"
             role="status"
           >
             Sign-in is not turned on yet. The password still needs to be saved
@@ -54,14 +54,14 @@ export default async function LoginPage({
 
         {invalid ? (
           <p
-            className="mt-4 rounded-2xl border border-red-300/30 bg-red-400/10 px-3 py-2 text-sm text-red-100"
+            className="mt-5 rounded-2xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800"
             role="alert"
           >
             That password is not right. Try again.
           </p>
         ) : null}
 
-        <form action={login} className="mt-5 flex flex-col gap-3">
+        <form action={login} className="mt-6 flex flex-col gap-4">
           <input type="hidden" name="next" value={next} />
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="password">Password</Label>
@@ -72,7 +72,7 @@ export default async function LoginPage({
               autoComplete="current-password"
               required
               autoFocus
-              className="h-10 rounded-2xl border-white/12 bg-white/[0.07] px-3 text-base"
+              className="h-11 rounded-xl border-[#e1e5ee] bg-white px-3 text-base text-[#0e1a2b]"
             />
           </div>
           <button
