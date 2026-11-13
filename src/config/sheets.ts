@@ -4,7 +4,6 @@ export const tabs = {
   stats: "Stats",
   listingFiles: "Listing Files",
   outstandingNotary: "Outstanding Notary",
-  notaryOptions: "Notary Options",
   pendingSubjects: "Pending Subjects",
   newListings: "New Listings",
   pond: "Request Pond Access",
@@ -24,6 +23,5 @@ export const readTabs = [
   tabs.stats,
   tabs.listingFiles,
   tabs.outstandingNotary,
-  tabs.notaryOptions,
   tabs.pendingSubjects,
 ] as const;

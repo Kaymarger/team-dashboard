@@ -22,6 +22,12 @@ import { openHouseLink } from "@/config/links";
 import type { OutstandingNotary, PendingSubject } from "@/lib/sheet-tables";
 import type { ScrapedListing } from "@/lib/parse-listings";
 
+type LinkedListing = ScrapedListing & {
+  mlsUrl: string;
+  strataUrl: string;
+  mediaUrl: string;
+};
+
 type Tile = {
   id: string;
   label: string;
@@ -47,16 +53,61 @@ const tiles: Tile[] = [
 const tileClass =
   "group flex min-h-[6.5rem] flex-col items-center justify-center gap-2.5 rounded-2xl bg-white px-3 py-4 text-center shadow-[0_10px_30px_rgba(14,26,43,0.06)] ring-1 ring-[#0e1a2b]/5 transition hover:-translate-y-0.5 hover:shadow-[0_14px_34px_rgba(14,26,43,0.1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#294c7d]";
 
+function fileHref(listing: LinkedListing, id: string): string {
+  if (id === "mls") return listing.mlsUrl;
+  if (id === "strata") return listing.strataUrl;
+  return listing.mediaUrl;
+}
+
+function ListingFileDialog({
+  listings,
+  tileId,
+  linkLabel,
+}: {
+  listings: LinkedListing[];
+  tileId: string;
+  linkLabel: string;
+}) {
+  if (!listings.length) {
+    return <p className="text-sm text-[#5c5c5c]">No active listings right now.</p>;
+  }
+  return (
+    <ul className="space-y-2">
+      {listings.map((listing) => {
+        const href = fileHref(listing, tileId).trim();
+        return (
+          <li
+            key={`${listing.mls}:${listing.address}`}
+            className="flex flex-col gap-1 rounded-xl border border-[#e7ebf2] bg-[#f8fafc] px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <span className="text-sm font-medium text-[#0e1a2b]">{listing.address}</span>
+            {href ? (
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-[#294c7d] underline-offset-4 hover:underline"
+              >
+                {linkLabel}
+              </a>
+            ) : (
+              <span className="text-sm text-[#5c5c5c]">Not available yet</span>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 export function ActionBoard({
   listings,
   listingsFailed,
-  notaryOptions,
   pendingSubjects,
   outstandingNotary,
 }: {
-  listings: ScrapedListing[];
+  listings: LinkedListing[];
   listingsFailed: boolean;
-  notaryOptions: string[];
   pendingSubjects: PendingSubject[];
   outstandingNotary: OutstandingNotary[];
 }) {
@@ -138,15 +189,18 @@ export function ActionBoard({
                 <X className="size-4" />
               </button>
             </div>
-            <RequestFormPanel
-              key={openTile.id}
-              formId={openTile.id}
-              listings={listings}
-              listingsFailed={listingsFailed}
-              notaryOptions={notaryOptions}
-              pendingSubjects={pendingSubjects}
-              outstandingNotary={outstandingNotary}
-            />
+            {openTile.id === "mls" || openTile.id === "strata" || openTile.id === "listing-media" ? (
+              <ListingFileDialog listings={listings} tileId={openTile.id} linkLabel={openTile.label} />
+            ) : (
+              <RequestFormPanel
+                key={openTile.id}
+                formId={openTile.id}
+                listings={listings}
+                listingsFailed={listingsFailed}
+                pendingSubjects={pendingSubjects}
+                outstandingNotary={outstandingNotary}
+              />
+            )}
           </div>
         </div>
       ) : null}

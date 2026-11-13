@@ -11,12 +11,7 @@ import { appendNamedRow, readTabRows, requireSheetId, SheetError } from "@/lib/g
 import { getActiveListings } from "@/lib/listings";
 import { visibleListings } from "@/lib/parse-listings";
 import { buildRequest, RequestError, type FieldBag, type RequestContext } from "@/lib/requests";
-import {
-  listingFilesFrom,
-  notaryOptionsFrom,
-  pendingSubjectsFrom,
-  vancouverTimestamp,
-} from "@/lib/sheet-tables";
+import { listingFilesFrom, pendingSubjectsFrom, vancouverTimestamp } from "@/lib/sheet-tables";
 
 export type FormState = {
   status: "success" | "error";
@@ -45,13 +40,11 @@ function bagFrom(formData: FormData): FieldBag {
 
 async function loadContext(): Promise<RequestContext> {
   const listingsResult = await getActiveListings();
-  let notaryOptions: string[] = [];
   let pending: RequestContext["pendingSubjects"] = [];
   let fileAddresses: string[] = [];
   try {
     const id = requireSheetId();
-    const tables = await readTabRows(id, [tabs.notaryOptions, tabs.pendingSubjects, tabs.listingFiles]);
-    notaryOptions = notaryOptionsFrom(tables.get(tabs.notaryOptions) ?? []);
+    const tables = await readTabRows(id, [tabs.pendingSubjects, tabs.listingFiles]);
     pending = pendingSubjectsFrom(tables.get(tabs.pendingSubjects) ?? []);
     fileAddresses = listingFilesFrom(tables.get(tabs.listingFiles) ?? []).map((file) => file.address);
   } catch {
@@ -61,7 +54,6 @@ async function loadContext(): Promise<RequestContext> {
   return {
     listings,
     listingsLoaded: listings.length > 0,
-    notaryOptions,
     pendingSubjects: pending,
   };
 }

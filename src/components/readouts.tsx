@@ -38,7 +38,7 @@ export function ImportantDates({ dates }: { dates: ImportantDate[] }) {
 export function TransactionsCard({ value }: { value: string | null }) {
   return (
     <section className="rounded-2xl bg-white px-6 py-6 shadow-[0_10px_30px_rgba(14,26,43,0.06)] ring-1 ring-[#0e1a2b]/5 sm:px-8">
-      <p className="text-xs font-semibold tracking-[0.16em] text-[#5c5c5c] uppercase">Transactions YTD</p>
+      <p className="text-sm font-medium text-[#5c5c5c]">Transactions YTD</p>
       <p className="mt-2 text-5xl font-semibold tracking-tight text-[#0e1a2b] sm:text-6xl">
         {value ?? <span className="text-[#0e1a2b]/25">—</span>}
       </p>

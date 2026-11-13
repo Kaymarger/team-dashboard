@@ -97,7 +97,6 @@ test("stats row reads transactions_ytd", () => {
 const ctx = {
   listings: [{ address: "104 3621 W 26th Avenue, Vancouver" }],
   listingsLoaded: true,
-  notaryOptions: ["22 Main Street"],
   pendingSubjects: [
     {
       address: "22 Main Street",
@@ -115,28 +114,54 @@ test("pond request is a new row for the chosen agent", () => {
   assert.equal(built.values.status, "new");
 });
 
-test("notary request keeps provisional detail columns", () => {
+test("notary request keeps agent, property, side, info, and notes", () => {
   const built = buildRequest(
     "notary",
     {
       agent: "Kevin Barrett",
-      property: "22 Main Street",
-      side: "Buyer",
-      notary_name: "Ada Law",
-      firm: "Law & Co",
-      phone: "604-555-0100",
-      email: "ada@example.com",
-      notary_info: "Use the side door.",
-      completion_date: "2026-12-15",
+      property: "88 Other Road",
+      side: "Seller",
+      notary_info: "Call after 3.",
       notes: "Rush",
     },
     ctx,
   );
-  assert.equal(built.tab, "Submit Notary Info");
-  assert.equal(built.values.side, "Buyer");
-  assert.equal(built.values.notary_info, "Use the side door.");
-  assert.ok(built.headers.includes("completion_date"));
-  assert.equal(built.values.status, "new");
+  assert.deepEqual(built.headers, [
+    "timestamp",
+    "agent",
+    "property",
+    "side",
+    "notary_info",
+    "notes",
+    "status",
+  ]);
+  assert.equal(built.values.notary_info, "Call after 3.");
+  assert.equal(built.values.property, "88 Other Road");
+});
+
+test("remove subjects accepts an address that is not pending", () => {
+  const built = buildRequest(
+    "remove-subjects",
+    {
+      property: "9 Side Street",
+      agent: "Cassie Kang",
+      subject_removal_date: "2026-12-20",
+      notes: "",
+    },
+    ctx,
+  );
+  assert.equal(built.values.property, "9 Side Street");
+  assert.equal(built.values.agent, "Cassie Kang");
+  assert.equal(built.values.subject_removal_date, "2026-12-20");
+});
+
+test("listing file tiles do not write a request row", () => {
+  assert.throws(() => buildRequest("mls", { property: "22 Main Street", agent: "Cassie Kang" }, ctx), RequestError);
+  assert.throws(() => buildRequest("strata", { property: "22 Main Street", agent: "Cassie Kang" }, ctx), RequestError);
+  assert.throws(
+    () => buildRequest("listing-media", { property: "22 Main Street", agent: "Cassie Kang" }, ctx),
+    RequestError,
+  );
 });
 
 test("remove subjects copies the pending row", () => {

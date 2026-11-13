@@ -5,7 +5,6 @@ import { readTabRows, requireSheetId, SheetError } from "@/lib/google-sheets";
 import {
   importantDatesFrom,
   listingFilesFrom,
-  notaryOptionsFrom,
   outstandingNotaryFrom,
   pendingSubjectsFrom,
   transactionsYtdFrom,
@@ -24,18 +23,19 @@ export type DashboardData = {
   listingsError: string | null;
   listingFiles: ListingFile[];
   outstandingNotary: OutstandingNotary[];
-  notaryOptions: string[];
   pendingSubjects: PendingSubject[];
 };
 
 export function fileFor(
   address: string,
   files: ListingFile[],
-  kind: "mls" | "strata",
+  kind: "mls" | "strata" | "media",
 ): string {
   const hit = files.find((file) => addressesMatch(address, file.address));
   if (!hit) return "";
-  return kind === "mls" ? hit.mlsUrl.trim() : hit.strataUrl.trim();
+  if (kind === "mls") return hit.mlsUrl.trim();
+  if (kind === "strata") return hit.strataUrl.trim();
+  return hit.mediaUrl.trim();
 }
 
 export async function loadDashboard(): Promise<DashboardData> {
@@ -54,7 +54,6 @@ async function loadSheet(): Promise<Omit<DashboardData, "listings" | "listingsEr
     transactionsYtd: null as string | null,
     listingFiles: [],
     outstandingNotary: [],
-    notaryOptions: [],
     pendingSubjects: [],
   };
   try {
@@ -66,7 +65,6 @@ async function loadSheet(): Promise<Omit<DashboardData, "listings" | "listingsEr
       transactionsYtd: transactionsYtdFrom(tables.get(tabs.stats) ?? []),
       listingFiles: listingFilesFrom(tables.get(tabs.listingFiles) ?? []),
       outstandingNotary: outstandingNotaryFrom(tables.get(tabs.outstandingNotary) ?? []),
-      notaryOptions: notaryOptionsFrom(tables.get(tabs.notaryOptions) ?? []),
       pendingSubjects: pendingSubjectsFrom(tables.get(tabs.pendingSubjects) ?? []),
     };
   } catch (error) {

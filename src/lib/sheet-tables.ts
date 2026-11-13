@@ -12,6 +12,7 @@ export type ListingFile = {
   address: string;
   mlsUrl: string;
   strataUrl: string;
+  mediaUrl: string;
 };
 
 export type OutstandingNotary = {
@@ -165,12 +166,13 @@ export function transactionsYtdFrom(rows: string[][]): string | null {
 }
 
 export function listingFilesFrom(rows: string[][]): ListingFile[] {
-  return objectsFrom(rows, ["address", "mls_url", "strata_url"])
+  return objectsFrom(rows, ["address", "mls_url", "strata_url", "media_url"])
     .filter((row) => row.address)
     .map((row) => ({
       address: row.address,
       mlsUrl: row.mls_url ?? "",
       strataUrl: row.strata_url ?? "",
+      mediaUrl: row.media_url ?? "",
     }));
 }
 
@@ -182,19 +184,6 @@ export function outstandingNotaryFrom(rows: string[][]): OutstandingNotary[] {
       side: row.side ?? "",
       closingDate: row.closing_date ?? "",
     }));
-}
-
-export function notaryOptionsFrom(rows: string[][]): string[] {
-  const seen = new Set<string>();
-  const options: string[] = [];
-  for (const row of objectsFrom(rows, ["address"])) {
-    const address = row.address?.trim() ?? "";
-    const key = address.toLowerCase();
-    if (!address || seen.has(key)) continue;
-    seen.add(key);
-    options.push(address);
-  }
-  return options;
 }
 
 export function pendingSubjectsFrom(rows: string[][]): PendingSubject[] {

@@ -12,16 +12,13 @@ export type DetailField = {
 
 export const notarySides = ["Buyer", "Seller"] as const;
 
-/** Provisional. Order here is the order of the columns after property and side. */
+/** Order here is the order of the columns after agent, property, and side. */
 export const notaryDetailFields: DetailField[] = [
-  { name: "notary_name", label: "Notary/lawyer name", input: "text" },
-  { name: "firm", label: "Firm", input: "text" },
-  { name: "phone", label: "Phone", input: "tel" },
-  { name: "email", label: "Email", input: "email" },
-  { name: "notary_info", label: "Notary info", input: "textarea" },
-  { name: "completion_date", label: "Completion date", input: "date" },
+  { name: "notary_info", label: "Notary Info", input: "textarea", required: true },
   { name: "notes", label: "Notes", input: "textarea" },
 ];
+
+export const yesNotesHint = "Please write details in the notes";
 
 export const listTerms = ["3 Months", "6 Months", "See Notes"] as const;
 

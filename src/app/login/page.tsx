@@ -32,7 +32,7 @@ export default async function LoginPage({
           height={48}
           className="h-12 w-12 object-contain"
         />
-        <p className="mt-5 text-xs font-semibold tracking-[0.18em] text-[#294c7d] uppercase">
+        <p className="mt-5 text-sm font-semibold tracking-wide text-[#294c7d]">
           {brand.name}
         </p>
         <h1 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-[#0e1a2b]">

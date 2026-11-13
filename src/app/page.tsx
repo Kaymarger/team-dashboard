@@ -23,6 +23,7 @@ export default async function HomePage() {
     mls: listing.mls,
     mlsUrl: fileFor(listing.address, data.listingFiles, "mls"),
     strataUrl: fileFor(listing.address, data.listingFiles, "strata"),
+    mediaUrl: fileFor(listing.address, data.listingFiles, "media"),
   }));
   const listingsFailed =
     chosen.length === 0 && Boolean(data.listingsError) && data.listingFiles.length === 0;
@@ -61,9 +62,8 @@ export default async function HomePage() {
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:gap-8">
         <ActionBoard
-          listings={chosen}
+          listings={listings}
           listingsFailed={listingsFailed}
-          notaryOptions={data.notaryOptions}
           pendingSubjects={data.pendingSubjects}
           outstandingNotary={data.outstandingNotary}
         />
@@ -78,7 +78,7 @@ export default async function HomePage() {
       </div>
 
       <nav aria-label="Quick Links" className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-1">
-        <span className="text-xs font-semibold tracking-[0.14em] text-[#5c5c5c] uppercase">Quick Links</span>
+        <span className="text-sm font-medium text-[#5c5c5c]">Quick Links</span>
         {quickLinks.map((link) => (
           <a
             key={link.href}

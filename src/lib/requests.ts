@@ -27,7 +27,6 @@ export type FieldBag = Record<string, string | string[]>;
 export type RequestContext = {
   listings: { address: string }[];
   listingsLoaded: boolean;
-  notaryOptions: string[];
   pendingSubjects: PendingSubject[];
 };
 
@@ -120,20 +119,6 @@ function base(tab: string, columns: string[], values: Record<string, string>): B
   };
 }
 
-function simpleProperty(
-  tab: string,
-  fields: FieldBag,
-  ctx: RequestContext,
-  extra?: Record<string, string>,
-): BuiltRequest {
-  const columns = extra ? ["property", "agent", ...Object.keys(extra)] : ["property", "agent"];
-  return base(tab, columns, {
-    property: propertyOf(fields, ctx),
-    agent: agentOf(fields),
-    ...extra,
-  });
-}
-
 export function buildRequest(form: string, fields: FieldBag, ctx: RequestContext): BuiltRequest {
   switch (form) {
     case "pond":
@@ -150,11 +135,9 @@ export function buildRequest(form: string, fields: FieldBag, ctx: RequestContext
         copies: copiesOf(fields, copyLimits.featureSheets.min, copyLimits.featureSheets.max),
       });
     case "strata":
-      return simpleProperty(tabs.strata, fields, ctx);
     case "listing-media":
-      return simpleProperty(tabs.listingMedia, fields, ctx);
     case "mls":
-      return simpleProperty(tabs.mls, fields, ctx);
+      throw new RequestError("Open that file from the listing list.");
     case "vacation": {
       const start = isoDate(one(fields, "start_date"), "a start date", true);
       const end = isoDate(one(fields, "end_date"), "an end date", true);
@@ -167,7 +150,7 @@ export function buildRequest(form: string, fields: FieldBag, ctx: RequestContext
       });
     }
     case "notary":
-      return buildNotary(fields, ctx);
+      return buildNotary(fields);
     case "remove-subjects":
       return buildRemoveSubjects(fields, ctx);
     case "new-listing":
@@ -186,15 +169,9 @@ export function buildRequest(form: string, fields: FieldBag, ctx: RequestContext
   }
 }
 
-function buildNotary(fields: FieldBag, ctx: RequestContext): BuiltRequest {
+function buildNotary(fields: FieldBag): BuiltRequest {
   const property = clip(one(fields, "property"), 300);
   if (!property) throw new RequestError("Enter a property.");
-  if (ctx.notaryOptions.length) {
-    const known = ctx.notaryOptions.some(
-      (option) => option.toLowerCase() === property.toLowerCase(),
-    );
-    if (!known) throw new RequestError("Choose a property from the list.");
-  }
   const side = choice(one(fields, "side"), notarySides, "Buyer or Seller");
   const details: Record<string, string> = {};
   for (const field of notaryDetailFields) {
@@ -203,12 +180,6 @@ function buildNotary(fields: FieldBag, ctx: RequestContext): BuiltRequest {
     else if (field.input === "date") details[field.name] = isoDate(raw, field.label.toLowerCase(), Boolean(field.required));
     else if (field.required && !raw) throw new RequestError(`Enter ${field.label.toLowerCase()}.`);
     else details[field.name] = raw;
-  }
-  const identityNames = ["notary_name", "notary_info"].filter((name) =>
-    notaryDetailFields.some((field) => field.name === name),
-  );
-  if (identityNames.length && identityNames.every((name) => !details[name])) {
-    throw new RequestError("Enter the notary name or the notary info.");
   }
   return base(tabs.notary, ["agent", "property", "side", ...notaryDetailFields.map((field) => field.name)], {
     agent: agentOf(fields),
@@ -229,14 +200,13 @@ function buildRemoveSubjects(fields: FieldBag, ctx: RequestContext): BuiltReques
     const matches = ctx.pendingSubjects.filter(
       (row) => row.address.toLowerCase() === property.toLowerCase(),
     );
-    const exact =
-      matches.find(
-        (row) =>
-          (!agentHint || row.agent === agentHint) &&
-          (!dateHint || row.subjectRemovalDate === dateHint),
-      ) ?? matches[0];
-    if (!exact) throw new RequestError("Choose a property from the list.");
-    return base(
+    const exact = matches.find(
+      (row) =>
+        (!agentHint || row.agent === agentHint) &&
+        (!dateHint || row.subjectRemovalDate === dateHint),
+    );
+    if (exact) {
+      return base(
       tabs.removeSubjects,
       ["property", "agent", "subject_removal_date", "notes"],
       {
@@ -245,7 +215,8 @@ function buildRemoveSubjects(fields: FieldBag, ctx: RequestContext): BuiltReques
         subject_removal_date: exact.subjectRemovalDate,
         notes,
       },
-    );
+      );
+    }
   }
 
   return base(tabs.removeSubjects, ["property", "agent", "subject_removal_date", "notes"], {

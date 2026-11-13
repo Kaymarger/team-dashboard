@@ -13,6 +13,7 @@ import {
   newListingReminder,
   notaryDetailFields,
   notarySides,
+  yesNotesHint,
   pdsDisclosure,
   pdsNote,
   yesNo,
@@ -114,7 +115,7 @@ function PropertyField({
 
 function CopiesField({ min, max }: { min: number; max: number }) {
   return (
-    <Field label="Number of copies">
+    <Field label="Number of Copies">
       <input
         name="copies"
         type="number"
@@ -128,33 +129,36 @@ function CopiesField({ min, max }: { min: number; max: number }) {
   );
 }
 
-function NotaryForm({
-  options,
-}: {
-  options: string[];
-}) {
+function NotaryForm({ addresses }: { addresses: string[] }) {
+  const [choice, setChoice] = useState("");
+  const other = choice === "other";
+
   return (
-    <FormCard title="Submit Notary Info" form="notary" className="sm:col-span-2">
-      <div className="grid gap-2 sm:grid-cols-2">
+    <FormCard title="Notary Info" form="notary" onSuccess={() => setChoice("")}>
+      <div className="grid gap-3 sm:grid-cols-2">
         <AgentField />
-        {options.length ? (
-          <Field label="Property">
-            <select name="property" required defaultValue="" className={controlClass}>
-              <option value="" disabled>
-                Select
+        <Field label="Property">
+          <select
+            required
+            value={choice}
+            onChange={(event) => setChoice(event.target.value)}
+            className={controlClass}
+          >
+            <option value="">Select</option>
+            {addresses.map((address) => (
+              <option key={address} value={address}>
+                {address}
               </option>
-              {options.map((address) => (
-                <option key={address} value={address}>
-                  {address}
-                </option>
-              ))}
-            </select>
+            ))}
+            <option value="other">Other</option>
+          </select>
+        </Field>
+        {other ? (
+          <Field label="Address" className="sm:col-span-2">
+            <input name="property" required className={controlClass} />
           </Field>
         ) : (
-          <Field label="Property">
-            <input name="property" required className={controlClass} placeholder="Address" />
-            <span className="text-[0.65rem] text-[#5c5c5c]">No addresses in Notary Options yet.</span>
-          </Field>
+          <input type="hidden" name="property" value={choice} />
         )}
         <Field label="Side">
           <select name="side" required defaultValue="" className={controlClass}>
@@ -169,20 +173,13 @@ function NotaryForm({
           </select>
         </Field>
         {notaryDetailFields.map((field) => (
-          <Field
-            key={field.name}
-            label={field.label}
-            className={field.input === "textarea" ? "sm:col-span-2" : undefined}
-          >
-            {field.input === "textarea" ? (
-              <textarea name={field.name} rows={2} className={`${controlClass} h-auto py-1.5`} />
-            ) : (
-              <input
-                name={field.name}
-                type={field.input === "date" ? "date" : field.input === "email" ? "email" : field.input === "tel" ? "tel" : "text"}
-                className={controlClass}
-              />
-            )}
+          <Field key={field.name} label={field.label} className="sm:col-span-2">
+            <textarea
+              name={field.name}
+              rows={field.name === "notes" ? 2 : 3}
+              required={field.required}
+              className={`${controlClass} h-auto py-2`}
+            />
           </Field>
         ))}
       </div>
@@ -192,59 +189,53 @@ function NotaryForm({
 
 function RemoveForm({ pending }: { pending: PendingSubject[] }) {
   const [index, setIndex] = useState("");
-  const row = index === "" ? null : pending[Number(index)];
+  const other = index === "other";
+  const row = !other && index !== "" ? pending[Number(index)] : null;
 
   return (
-    <FormCard
-      title="Remove Subjects"
-      form="remove-subjects"
-      className="sm:col-span-2"
-      onSuccess={() => setIndex("")}
-    >
-      {pending.length ? (
-        <>
-          <Field label="Property">
-            <select
-              required
-              value={index}
-              onChange={(event) => setIndex(event.target.value)}
-              className={controlClass}
-            >
-              <option value="">Select</option>
-              {pending.map((item, itemIndex) => (
-                <option key={`${item.address}-${itemIndex}`} value={String(itemIndex)}>
-                  {item.address}
-                  {item.agent ? ` · ${item.agent}` : ""}
-                  {item.subjectRemovalDate ? ` · ${item.subjectRemovalDate}` : ""}
-                </option>
-              ))}
-            </select>
+    <FormCard title="Remove Subjects" form="remove-subjects" onSuccess={() => setIndex("")}>
+      <Field label="Property">
+        <select
+          required
+          value={index}
+          onChange={(event) => setIndex(event.target.value)}
+          className={controlClass}
+        >
+          <option value="">Select</option>
+          {pending.map((item, itemIndex) => (
+            <option key={`${item.address}-${itemIndex}`} value={String(itemIndex)}>
+              {item.address}
+              {item.agent ? ` · ${item.agent}` : ""}
+              {item.subjectRemovalDate ? ` · ${item.subjectRemovalDate}` : ""}
+            </option>
+          ))}
+          <option value="other">Other</option>
+        </select>
+      </Field>
+      {other ? (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label="Address" className="sm:col-span-2">
+            <input name="property" required className={controlClass} />
           </Field>
+          <AgentField />
+          <Field label="Subject Removal Date">
+            <input name="subject_removal_date" type="date" required className={controlClass} />
+          </Field>
+        </div>
+      ) : (
+        <>
           <input type="hidden" name="property" value={row?.address ?? ""} />
           <input type="hidden" name="agent" value={row?.agent ?? ""} />
           <input type="hidden" name="subject_removal_date" value={row?.subjectRemovalDate ?? ""} />
           {row ? (
-            <p className="text-[0.68rem] text-[#5c5c5c]">
+            <p className="text-sm text-[#5c5c5c]">
               {row.agent || "No agent on the sheet"} · {row.subjectRemovalDate || "No removal date"}
             </p>
           ) : null}
         </>
-      ) : (
-        <div className="grid gap-2 sm:grid-cols-2">
-          <p className="text-[0.68rem] text-[#5c5c5c] sm:col-span-2">
-            No pending subjects on the sheet. Enter the details below.
-          </p>
-          <Field label="Property">
-            <input name="property" required className={controlClass} />
-          </Field>
-          <AgentField />
-          <Field label="Subject removal date">
-            <input name="subject_removal_date" type="date" required className={controlClass} />
-          </Field>
-        </div>
       )}
       <Field label="Notes">
-        <textarea name="notes" rows={2} className={`${controlClass} h-auto py-1.5`} />
+        <textarea name="notes" rows={2} className={`${controlClass} h-auto py-2`} />
       </Field>
     </FormCard>
   );
@@ -267,6 +258,8 @@ function NewListingForm() {
 function NewListingFields() {
   const [disclosure, setDisclosure] = useState("");
   const [source, setSource] = useState("");
+  const [offerDate, setOfferDate] = useState("");
+  const [signage, setSignage] = useState("");
   const [emails, setEmails] = useState(["", ""]);
   const sourceConfig = leadSources.find((item) => item.value === source);
   const showBuilding = disclosure === pdsDisclosure;
@@ -309,7 +302,13 @@ function NewListingFields() {
           </select>
         </Field>
         <Field label="Offer Date">
-          <select name="offer_date" required defaultValue="" className={controlClass}>
+          <select
+            name="offer_date"
+            required
+            value={offerDate}
+            onChange={(event) => setOfferDate(event.target.value)}
+            className={controlClass}
+          >
             <option value="" disabled>
               Select
             </option>
@@ -319,6 +318,9 @@ function NewListingFields() {
               </option>
             ))}
           </select>
+          {offerDate === "Yes" ? (
+            <span className="text-[0.72rem] text-[#5c5c5c]">{yesNotesHint}</span>
+          ) : null}
         </Field>
         <Field label="Disclosure">
           <select
@@ -353,44 +355,6 @@ function NewListingFields() {
             <span className="text-[0.72rem] leading-snug text-[#5c5c5c]">{pdsNote}</span>
           </Field>
         ) : null}
-        <div className="flex flex-col gap-1.5 sm:col-span-2">
-          <span className="text-[0.68rem] font-medium text-[#5c5c5c]">Seller Emails</span>
-          {emails.map((email, index) => (
-            <div key={index} className="flex gap-1.5">
-              <input
-                name="seller_email"
-                type="email"
-                required={index === 0}
-                value={email}
-                onChange={(event) =>
-                  setEmails((current) =>
-                    current.map((item, itemIndex) =>
-                      itemIndex === index ? event.target.value : item,
-                    ),
-                  )
-                }
-                className={controlClass}
-                aria-label={`Seller email ${index + 1}`}
-              />
-              {index > 1 ? (
-                <button
-                  type="button"
-                  className="h-10 rounded-xl border border-[#e1e5ee] px-2 text-xs text-[#5c5c5c]"
-                  onClick={() => setEmails((current) => current.filter((_, itemIndex) => itemIndex !== index))}
-                >
-                  Remove
-                </button>
-              ) : null}
-            </div>
-          ))}
-          <button
-            type="button"
-            className="h-8 self-start rounded-xl border border-[#e1e5ee] px-2.5 text-xs font-medium text-[#294c7d]"
-            onClick={() => setEmails((current) => [...current, ""])}
-          >
-            + Add email
-          </button>
-        </div>
         <Field label="Lead Source" className="sm:col-span-2">
           <select
             name="lead_source"
@@ -418,7 +382,13 @@ function NewListingFields() {
           </Field>
         ) : null}
         <Field label="Signage Needed">
-          <select name="signage_needed" required defaultValue="" className={controlClass}>
+          <select
+            name="signage_needed"
+            required
+            value={signage}
+            onChange={(event) => setSignage(event.target.value)}
+            className={controlClass}
+          >
             <option value="" disabled>
               Select
             </option>
@@ -428,6 +398,9 @@ function NewListingFields() {
               </option>
             ))}
           </select>
+          {signage === "Yes" ? (
+            <span className="text-[0.72rem] text-[#5c5c5c]">{yesNotesHint}</span>
+          ) : null}
         </Field>
         <Field label="Send Listing Onboarding Form to Seller">
           <select name="send_onboarding_form" required defaultValue="" className={controlClass}>
@@ -441,6 +414,44 @@ function NewListingFields() {
             ))}
           </select>
         </Field>
+        <div className="flex flex-col gap-1.5 sm:col-span-2">
+          <span className="text-xs font-medium text-[#5c5c5c]">Seller Emails</span>
+          {emails.map((email, index) => (
+            <div key={index} className="flex gap-1.5">
+              <input
+                name="seller_email"
+                type="email"
+                required={index === 0}
+                value={email}
+                onChange={(event) =>
+                  setEmails((current) =>
+                    current.map((item, itemIndex) =>
+                      itemIndex === index ? event.target.value : item,
+                    ),
+                  )
+                }
+                className={controlClass}
+                aria-label={`Seller Email ${index + 1}`}
+              />
+              {index > 1 ? (
+                <button
+                  type="button"
+                  className="h-10 rounded-xl border border-[#e1e5ee] px-2 text-xs text-[#5c5c5c]"
+                  onClick={() => setEmails((current) => current.filter((_, itemIndex) => itemIndex !== index))}
+                >
+                  Remove
+                </button>
+              ) : null}
+            </div>
+          ))}
+          <button
+            type="button"
+            className="h-8 self-start rounded-xl border border-[#e1e5ee] px-2.5 text-xs font-medium text-[#294c7d]"
+            onClick={() => setEmails((current) => [...current, ""])}
+          >
+            Add Email
+          </button>
+        </div>
         <Field label="Notes" className="sm:col-span-2">
           <textarea name="notes" rows={2} className={`${controlClass} h-auto py-1.5`} />
         </Field>
@@ -454,29 +465,28 @@ export function RequestFormPanel({
   formId,
   listings,
   listingsFailed,
-  notaryOptions,
   pendingSubjects,
   outstandingNotary,
 }: {
   formId: string;
   listings: ScrapedListing[];
   listingsFailed: boolean;
-  notaryOptions: string[];
   pendingSubjects: PendingSubject[];
   outstandingNotary: OutstandingNotary[];
 }) {
   if (formId === "notary") {
+    const addresses = [
+      ...new Set(outstandingNotary.map((row) => row.address.trim()).filter(Boolean)),
+    ];
     return (
       <div className="flex flex-col gap-5">
         <div>
-          <h3 className="text-xs font-semibold tracking-[0.12em] text-[#5c5c5c] uppercase">
-            Outstanding
-          </h3>
+          <h3 className="text-sm font-semibold text-[#0e1a2b]">Outstanding</h3>
           <div className="mt-2">
             <OutstandingList rows={outstandingNotary} />
           </div>
         </div>
-        <NotaryForm options={notaryOptions} />
+        <NotaryForm addresses={addresses} />
       </div>
     );
   }
@@ -506,39 +516,15 @@ export function RequestFormPanel({
       </FormCard>
     );
   }
-  if (formId === "strata") {
-    return (
-      <FormCard title="Strata Documents" form="strata">
-        <PropertyField listings={listings} listingsFailed={listingsFailed} />
-        <AgentField />
-      </FormCard>
-    );
-  }
-  if (formId === "listing-media") {
-    return (
-      <FormCard title="Listing Media" form="listing-media">
-        <PropertyField listings={listings} listingsFailed={listingsFailed} />
-        <AgentField />
-      </FormCard>
-    );
-  }
-  if (formId === "mls") {
-    return (
-      <FormCard title="MLS Sheets" form="mls">
-        <PropertyField listings={listings} listingsFailed={listingsFailed} />
-        <AgentField />
-      </FormCard>
-    );
-  }
   if (formId === "vacation") {
     return (
       <FormCard title="Submit Vacation Days" form="vacation">
         <AgentField />
-        <Field label="Dates">
-          <span className="grid grid-cols-2 gap-2">
-            <input name="start_date" type="date" required aria-label="Start date" className={controlClass} />
-            <input name="end_date" type="date" required aria-label="End date" className={controlClass} />
-          </span>
+        <Field label="Start Date">
+          <input name="start_date" type="date" required className={controlClass} />
+        </Field>
+        <Field label="End Date">
+          <input name="end_date" type="date" required className={controlClass} />
         </Field>
         <Field label="Notes">
           <textarea name="notes" rows={2} className={`${controlClass} h-auto py-2`} />
