@@ -6,19 +6,6 @@ import { previewDashboard } from "@/lib/preview-dashboard";
 
 export const dynamic = "force-dynamic";
 
-function greeting(now = new Date()): string {
-  const hour = Number(
-    new Intl.DateTimeFormat("en-US", {
-      timeZone: "America/Vancouver",
-      hour: "numeric",
-      hourCycle: "h23",
-    }).format(now),
-  );
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
-}
-
 function todayLabel(now = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Vancouver",
@@ -53,7 +40,6 @@ export default async function HomePage() {
         </p>
       ) : null}
       <DashboardShell
-        greeting={greeting()}
         dateLabel={todayLabel()}
         ytd={data.transactionsYtd}
         dates={data.dates}

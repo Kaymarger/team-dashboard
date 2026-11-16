@@ -28,11 +28,11 @@ export function UpcomingDates({ dates }: { dates: ImportantDate[] }) {
         const parts = dateParts(item);
         return (
           <li key={`${item.date}-${item.title}-${index}`} className="flex items-center gap-4">
-            <div className="flex w-14 shrink-0 flex-col items-center rounded-xl bg-[#2b2f3e] py-2">
+            <div className="flex w-12 shrink-0 flex-col items-center rounded-lg border border-white/[0.06] bg-[#2b2f3e] py-1.5">
               <span className="text-[0.65rem] tracking-[0.14em] text-[#d4b483] uppercase">
                 {parts?.month ?? "Date"}
               </span>
-              <span className="text-2xl font-light text-white">{parts?.day ?? "—"}</span>
+              <span className="text-xl font-semibold text-white">{parts?.day ?? "—"}</span>
             </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-medium text-white">{item.title || "Untitled"}</p>

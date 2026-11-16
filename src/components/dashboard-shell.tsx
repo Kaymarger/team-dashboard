@@ -2,18 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import {
-  Briefcase,
-  FolderOpen,
-  Gauge,
-  History,
-  Home,
-  LineChart,
-  LogOut,
-  Power,
-  Search,
-  Users,
-} from "lucide-react";
+import { FolderOpen, History, Home, LineChart, LogOut, Search } from "lucide-react";
 import { logout } from "@/app/login/actions";
 import { ActionBoard } from "@/components/action-board";
 import { ListingsCard } from "@/components/listings-card";
@@ -30,30 +19,20 @@ type ListingRow = {
   mediaUrl: string;
 };
 
-const nav = [
-  { id: "overview", label: "Overview", icon: Home },
-  { id: "requests", label: "Requests", icon: Gauge },
-  { id: "listings", label: "Listings", icon: Briefcase },
-  { id: "transactions", label: "Transactions", icon: LineChart },
-  { id: "team", label: "Team", icon: Users },
-];
-
 const linkIcons = [FolderOpen, LineChart, Home, History];
 
-function StatPanel({ label, value, marker }: { label: string; value: string; marker: string }) {
+const panelClass = "rounded-xl border border-white/[0.06] bg-[#383d50]";
+
+function StatPanel({ label, value }: { label: string; value: string }) {
   return (
-    <section className="rounded-2xl bg-[#383d50] px-5 py-5">
-      <div className="flex items-center gap-2">
-        <span className="size-2.5 rounded-[3px]" style={{ background: marker }} aria-hidden />
-        <p className="text-xs text-[#b7b3ab]">{label}</p>
-      </div>
-      <p className="mt-4 text-5xl font-light tracking-tight text-white sm:text-6xl">{value}</p>
+    <section className={`${panelClass} px-4 py-4`}>
+      <p className="text-[0.68rem] font-medium tracking-[0.14em] text-[#d4b483] uppercase">{label}</p>
+      <p className="mt-2 text-3xl font-semibold tracking-tight text-white">{value}</p>
     </section>
   );
 }
 
 export function DashboardShell({
-  greeting,
   dateLabel,
   ytd,
   dates,
@@ -63,7 +42,6 @@ export function DashboardShell({
   pendingSubjects,
   outstandingNotary,
 }: {
-  greeting: string;
   dateLabel: string;
   ytd: string | null;
   dates: ImportantDate[];
@@ -80,72 +58,59 @@ export function DashboardShell({
     : listings;
 
   return (
-    <div className="md:flex md:items-start">
-      <aside className="sticky top-0 z-40 hidden h-screen w-[76px] shrink-0 flex-col items-center self-start bg-[#33384a] py-5 md:flex">
-        <Image src={brand.logo} alt="" width={36} height={36} className="h-9 w-9 rounded-full bg-white object-contain p-1" />
-        <nav className="mt-8 flex flex-1 flex-col items-center gap-2" aria-label="Sections">
-          {nav.map((item) => {
-            const Icon = item.icon;
-            return (
-              <a
-                key={item.id}
-                href={`#${item.id}`}
-                aria-label={item.label}
-                title={item.label}
-                className="flex size-11 items-center justify-center rounded-xl text-white/80 transition hover:bg-white/5 hover:text-[#d4b483] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483]"
-              >
-                <Icon className="size-5" strokeWidth={1.6} />
-              </a>
-            );
-          })}
-        </nav>
-        <form action={logout}>
-          <button
-            type="submit"
-            aria-label="Sign out"
-            title="Sign out"
-            className="flex size-11 items-center justify-center rounded-xl text-white/80 hover:bg-white/5 hover:text-[#d4b483] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483]"
-          >
-            <Power className="size-5" strokeWidth={1.6} />
-          </button>
-        </form>
-      </aside>
-
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-5 pb-28 sm:px-6 md:pb-10">
-        <header id="overview" className="scroll-mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <span className="flex size-12 items-center justify-center rounded-full bg-[#d4b483] text-sm font-semibold text-[#2b2f3e]">
-              AR
-            </span>
-            <div>
-              <p className="text-lg text-white">{greeting}, team</p>
-              <p className="text-sm text-[#b7b3ab]">{dateLabel}</p>
-            </div>
-          </div>
-          <label className="relative block w-full sm:max-w-xs">
-            <span className="sr-only">Search</span>
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#6d717c]" aria-hidden />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search"
-              className="h-11 w-full rounded-xl bg-white pr-3 pl-10 text-sm text-[#2b2f3e] outline-none placeholder:text-[#8d918c] focus-visible:ring-2 focus-visible:ring-[#d4b483]"
+    <div>
+      <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-4 py-4 sm:px-6 sm:py-6">
+        <header className="flex flex-col gap-3 border-b border-white/[0.06] pb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-center gap-3">
+            <Image
+              src={brand.logo}
+              alt=""
+              width={28}
+              height={28}
+              className="h-7 w-7 shrink-0 rounded-md bg-white object-contain p-0.5"
             />
-          </label>
+            <p className="truncate text-sm text-[#f7f5f2]">
+              {brand.group} · Team Dashboard
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="relative block min-w-0 flex-1 sm:w-56 sm:flex-none">
+              <span className="sr-only">Search</span>
+              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#8d918c]" aria-hidden />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search"
+                className="h-10 w-full rounded-lg border border-white/[0.06] bg-[#383d50] pr-3 pl-9 text-sm text-white outline-none placeholder:text-[#8d918c] focus-visible:border-[#d4b483] focus-visible:ring-2 focus-visible:ring-[#d4b483]/40"
+              />
+            </label>
+            <form action={logout}>
+              <button
+                type="submit"
+                className="inline-flex h-10 items-center gap-1.5 rounded-lg px-2 text-sm text-[#b7b3ab] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483]"
+              >
+                <LogOut className="size-4" aria-hidden />
+                Sign out
+              </button>
+            </form>
+          </div>
         </header>
 
-        <h1 className="text-4xl font-light tracking-tight text-white sm:text-5xl">Team Overview</h1>
+        <div id="overview">
+          <h1 className="text-2xl font-semibold tracking-tight text-white">Team Overview</h1>
+          <p className="mt-1 text-sm text-[#b7b3ab]">{dateLabel}</p>
+        </div>
 
-        <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_20rem]">
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <StatPanel label="Transactions YTD" value={ytd ?? "—"} marker="#d4b483" />
-            <StatPanel label="Active Listings" value={String(listings.length)} marker="#c4b49a" />
-            <StatPanel label="Pending Subjects" value={String(pendingSubjects.length)} marker="#a3b18a" />
-            <StatPanel label="Outstanding Notary" value={String(outstandingNotary.length)} marker="#b7a99a" />
+        <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_18rem]">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <StatPanel label="Transactions YTD" value={ytd ?? "—"} />
+            <StatPanel label="Active Listings" value={String(listings.length)} />
+            <StatPanel label="Pending Subjects" value={String(pendingSubjects.length)} />
+            <StatPanel label="Outstanding Notary" value={String(outstandingNotary.length)} />
           </div>
-          <section className="rounded-2xl bg-[#383d50] p-5 xl:row-span-1">
-            <p className="text-xs tracking-[0.16em] text-[#9a9eae] uppercase">Important Dates</p>
-            <div className="mt-4">
+          <section className={`${panelClass} p-4`}>
+            <p className="text-[0.68rem] font-medium tracking-[0.14em] text-[#9a9eae] uppercase">Important Dates</p>
+            <div className="mt-3">
               <UpcomingDates dates={dates} />
             </div>
           </section>
@@ -159,15 +124,15 @@ export function DashboardShell({
           outstandingNotary={outstandingNotary}
         />
 
-        <section id="current-listings" className="scroll-mt-24 rounded-2xl bg-[#383d50] p-5">
-          <h2 className="text-[0.7rem] font-medium tracking-[0.22em] text-[#9a9eae] uppercase">Current Listings</h2>
+        <section id="current-listings" className={`${panelClass} scroll-mt-24 p-4`}>
+          <h2 className="text-[0.68rem] font-medium tracking-[0.14em] text-[#9a9eae] uppercase">Current Listings</h2>
           <div className="mt-4">
             <ListingsCard listings={shownListings} error={listingsFailed ? listingsError : null} />
           </div>
         </section>
 
-        <section className="rounded-2xl bg-[#383d50] p-5">
-          <h2 className="text-[0.7rem] font-medium tracking-[0.22em] text-[#9a9eae] uppercase">Quick Links</h2>
+        <section className={`${panelClass} p-4`}>
+          <h2 className="text-[0.68rem] font-medium tracking-[0.14em] text-[#9a9eae] uppercase">Quick Links</h2>
           <div className="mt-4 flex flex-wrap gap-2">
             {quickLinks.map((link, index) => {
               const Icon = linkIcons[index] ?? FolderOpen;
@@ -187,27 +152,6 @@ export function DashboardShell({
           </div>
         </section>
       </div>
-
-      <nav className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-around bg-[#33384a] px-2 py-2 md:hidden" aria-label="Sections">
-        {nav.map((item) => {
-          const Icon = item.icon;
-          return (
-            <a
-              key={item.id}
-              href={`#${item.id}`}
-              aria-label={item.label}
-              className="flex size-11 items-center justify-center rounded-xl text-white"
-            >
-              <Icon className="size-5" strokeWidth={1.6} />
-            </a>
-          );
-        })}
-        <form action={logout}>
-          <button type="submit" aria-label="Sign out" className="flex size-11 items-center justify-center rounded-xl text-white">
-            <LogOut className="size-5" strokeWidth={1.6} />
-          </button>
-        </form>
-      </nav>
     </div>
   );
 }

@@ -2,7 +2,6 @@
 
 import { useEffect, useId, useState } from "react";
 import {
-  ArrowUpRight,
   BookOpen,
   Building2,
   CalendarRange,
@@ -78,7 +77,7 @@ const groups: { label: string; tiles: Tile[] }[] = [
 const tiles = groups.flatMap((group) => group.tiles);
 
 const tileClass =
-  "group relative flex min-h-[148px] w-full flex-col items-start justify-between rounded-2xl bg-[#383d50] p-5 text-left transition duration-200 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(212,180,131,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483]";
+  "group flex h-full min-h-[92px] w-full items-start gap-3 rounded-xl border border-white/[0.06] bg-[#383d50] p-4 text-left transition hover:border-[#d4b483]/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483]";
 
 function fileHref(listing: LinkedListing, id: string): string {
   if (id === "mls") return listing.mlsUrl;
@@ -175,22 +174,21 @@ export function ActionBoard({
         ) : null}
         {visibleGroups.map((group) => (
           <section key={group.label} id={group.label.toLowerCase()} className="scroll-mt-24" aria-labelledby={`group-${group.label}`}>
-            <h2 id={`group-${group.label}`} className="text-[0.7rem] font-medium tracking-[0.22em] text-[#9a9eae] uppercase">
+            <h2 id={`group-${group.label}`} className="text-[0.68rem] font-medium tracking-[0.16em] text-[#9a9eae] uppercase">
               {group.label}
             </h2>
-            <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {group.tiles.map((tile) => {
                 const Icon = tile.icon;
                 const inner = (
                   <>
-                    <span className="flex size-12 items-center justify-center rounded-2xl bg-[#d4b483]/12 text-[#d4b483]">
-                      <Icon className="size-6" strokeWidth={1.5} aria-hidden />
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#d4b483]/10 text-[#d4b483]">
+                      <Icon className="size-[18px]" strokeWidth={1.6} aria-hidden />
                     </span>
-                    <span className="mt-4 block">
-                      <span className="block text-base font-medium text-white">{tile.label}</span>
-                      <span className="mt-1 block text-sm leading-snug text-[#b7b3ab]">{tile.description}</span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold text-white">{tile.label}</span>
+                      <span className="mt-0.5 block text-xs leading-snug text-[#b7b3ab]">{tile.description}</span>
                     </span>
-                    <ArrowUpRight className="absolute top-4 right-4 size-4 text-[#d4b483] opacity-0 transition group-hover:opacity-100" aria-hidden />
                   </>
                 );
                 if (tile.href) {

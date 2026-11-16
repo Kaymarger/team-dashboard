@@ -46,7 +46,7 @@ export function ListingsCard({
           { label: "Listing Media", href: listing.mediaUrl },
         ].filter((item) => item.href.trim());
         return (
-          <li key={`${listing.mls}:${listing.address}`} className="flex gap-3 rounded-2xl bg-[#2b2f3e] px-3 py-3">
+          <li key={`${listing.mls}:${listing.address}`} className="flex gap-3 rounded-xl border border-white/[0.06] bg-[#2b2f3e] px-3 py-3">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#d4b483]/12 text-[#d4b483]">
               <Home className="size-4" strokeWidth={1.6} aria-hidden />
             </span>
