@@ -48,7 +48,7 @@ export default async function HomePage() {
   return (
     <>
       {data.sheetError ? (
-        <p className="mx-auto mt-4 w-[min(100%-2rem,72rem)] rounded-2xl bg-[#4a4038] px-4 py-3 text-sm text-[#f0d7c4] md:ml-[92px]" role="alert">
+        <p className="mx-auto mt-4 w-[min(100%-2rem,72rem)] rounded-2xl bg-[#4a4038] px-4 py-3 text-sm text-[#f0d7c4]" role="alert">
           {data.sheetError}
         </p>
       ) : null}

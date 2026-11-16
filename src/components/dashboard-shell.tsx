@@ -80,8 +80,8 @@ export function DashboardShell({
     : listings;
 
   return (
-    <div className="min-h-screen md:pl-[76px]">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[76px] flex-col items-center bg-[#33384a] py-5 md:flex">
+    <div className="md:flex md:items-start">
+      <aside className="sticky top-0 z-40 hidden h-screen w-[76px] shrink-0 flex-col items-center self-start bg-[#33384a] py-5 md:flex">
         <Image src={brand.logo} alt="" width={36} height={36} className="h-9 w-9 rounded-full bg-white object-contain p-1" />
         <nav className="mt-8 flex flex-1 flex-col items-center gap-2" aria-label="Sections">
           {nav.map((item) => {
