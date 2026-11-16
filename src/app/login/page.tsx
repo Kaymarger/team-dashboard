@@ -62,7 +62,7 @@ export default async function LoginPage({
               required
               autoFocus
               placeholder="Team password"
-              className="h-12 rounded-xl border-white/10 bg-[#2b2f3e] px-3 text-base text-white placeholder:text-[#8d918c]"
+              className="h-12 rounded-xl border-white/10 bg-[#2b2f3e] px-3 text-base text-white placeholder:text-[#8d918c] md:text-base"
             />
           </div>
           <button

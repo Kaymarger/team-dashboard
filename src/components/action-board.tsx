@@ -55,7 +55,7 @@ const tiles: Tile[] = [
 ];
 
 const tileClass =
-  "group flex h-12 min-w-0 items-center gap-2 rounded-lg border border-white/[0.06] bg-[#383d50] px-2.5 text-left transition hover:border-[#d4b483]/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483]";
+  "group flex min-h-11 min-w-0 items-center gap-2 rounded-lg border border-white/[0.06] bg-[#383d50] px-2.5 py-2 text-left transition hover:border-[#d4b483]/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483] sm:h-12 sm:py-0";
 
 function fileHref(listing: LinkedListing, id: string): string {
   if (id === "mls") return listing.mlsUrl;
@@ -82,15 +82,15 @@ function ListingFileDialog({
         return (
           <li
             key={`${listing.mls}:${listing.address}`}
-            className="flex flex-col gap-2 rounded-2xl bg-[#2b2f3e] px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+            className="flex min-w-0 flex-col gap-2 rounded-2xl bg-[#2b2f3e] px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
           >
-            <span className="text-sm font-medium text-white">{listing.address}</span>
+            <span className="min-w-0 text-sm font-medium break-words text-white">{listing.address}</span>
             {href ? (
               <a
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-9 items-center justify-center rounded-full border border-[#d4b483]/50 px-3 text-xs font-medium text-[#d4b483] hover:bg-[#d4b483] hover:text-[#2b2f3e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483]"
+                className="inline-flex h-11 shrink-0 items-center justify-center rounded-full border border-[#d4b483]/50 px-3 text-sm font-medium text-[#d4b483] hover:bg-[#d4b483] hover:text-[#2b2f3e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483]"
               >
                 {linkLabel}
               </a>
@@ -141,7 +141,7 @@ export function ActionBoard({
 
   return (
     <>
-      <section id="actions" aria-label="Actions">
+      <section id="actions" aria-label="Actions" className="min-w-0">
         {visibleTiles.length === 0 ? (
           <p className="text-sm text-[#b7b3ab]">No actions match that search.</p>
         ) : (
@@ -151,7 +151,7 @@ export function ActionBoard({
               const inner = (
                 <>
                   <Icon className="size-4 shrink-0 text-[#d4b483]" strokeWidth={1.7} aria-hidden />
-                  <span className="truncate text-xs font-medium text-white">{tile.label}</span>
+                  <span className="min-w-0 text-[0.8125rem] leading-snug font-medium break-words text-white sm:truncate sm:text-xs">{tile.label}</span>
                 </>
               );
               if (tile.href) {
@@ -185,17 +185,17 @@ export function ActionBoard({
       </section>
 
       {openTile ? (
-        <div className="fixed inset-0 z-50 flex bg-black/55" onClick={() => setOpenId(null)}>
+        <div className="fixed inset-0 z-50 flex bg-black/55 sm:justify-end" onClick={() => setOpenId(null)}>
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
-            className="ml-auto flex h-full w-full flex-col bg-[#323746] shadow-[0_24px_80px_rgba(0,0,0,0.45)] sm:max-w-xl"
+            className="flex h-dvh w-full max-w-full flex-col bg-[#323746] pt-[env(safe-area-inset-top)] shadow-[0_24px_80px_rgba(0,0,0,0.45)] sm:ml-auto sm:h-full sm:max-w-xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-5 sm:px-6">
-              <div>
-                <h2 id={titleId} className="text-2xl font-light tracking-tight text-white">
+            <div className="flex shrink-0 items-start justify-between gap-4 border-b border-white/10 px-4 py-4 sm:px-6 sm:py-5">
+              <div className="min-w-0">
+                <h2 id={titleId} className="text-xl font-light tracking-tight text-white sm:text-2xl">
                   {openTile.label}
                 </h2>
                 <p className="mt-1 text-sm text-[#b7b3ab]">{openTile.description}</p>
@@ -210,7 +210,7 @@ export function ActionBoard({
                 <X className="size-5" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto px-5 py-5 sm:px-6">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-6 sm:py-5">
               <CloseFormContext.Provider value={() => setOpenId(null)}>
                 {openTile.id === "mls" || openTile.id === "strata" || openTile.id === "listing-media" ? (
                   <ListingFileDialog listings={listings} tileId={openTile.id} linkLabel={openTile.label} />

@@ -1,6 +1,7 @@
 "use client";
 
-import { Home } from "lucide-react";
+import { useId, useState } from "react";
+import { ChevronDown, Home } from "lucide-react";
 
 type ListingRow = {
   address: string;
@@ -11,7 +12,7 @@ type ListingRow = {
 };
 
 const pillClass =
-  "inline-flex h-8 items-center justify-center rounded-full border border-[#d4b483]/45 px-3 text-[0.72rem] font-medium text-[#d4b483] transition hover:bg-[#d4b483] hover:text-[#2b2f3e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483]";
+  "inline-flex h-11 items-center justify-center rounded-full border border-[#d4b483]/45 px-3 text-sm font-medium text-[#d4b483] transition hover:bg-[#d4b483] hover:text-[#2b2f3e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483]";
 
 export function ListingsCard({
   listings,
@@ -20,6 +21,9 @@ export function ListingsCard({
   listings: ListingRow[];
   error: string | null;
 }) {
+  const [openKey, setOpenKey] = useState<string | null>(null);
+  const baseId = useId();
+
   if (!listings.length && error) {
     return (
       <p className="rounded-xl bg-[#4a4038] px-3 py-3 text-sm leading-relaxed text-[#f0d7c4]">
@@ -38,31 +42,58 @@ export function ListingsCard({
   }
 
   return (
-    <ul className="max-h-[32rem] space-y-2 overflow-y-auto pr-1">
-      {listings.map((listing) => {
+    <ul className="space-y-2 sm:max-h-[32rem] sm:overflow-y-auto sm:pr-1">
+      {listings.map((listing, index) => {
+        const key = `${listing.mls}:${listing.address}`;
+        const open = openKey === key;
+        const panelId = `${baseId}-panel-${index}`;
+        const buttonId = `${baseId}-button-${index}`;
         const links = [
           { label: "MLS Sheet", href: listing.mlsUrl },
           { label: "Strata Documents", href: listing.strataUrl },
           { label: "Listing Media", href: listing.mediaUrl },
         ].filter((item) => item.href.trim());
         return (
-          <li key={`${listing.mls}:${listing.address}`} className="flex gap-3 rounded-xl border border-white/[0.06] bg-[#2b2f3e] px-3 py-3">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#d4b483]/12 text-[#d4b483]">
-              <Home className="size-4" strokeWidth={1.6} aria-hidden />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-white">{listing.address}</p>
-              {listing.mls ? <p className="mt-0.5 text-xs text-[#b7b3ab]">{listing.mls}</p> : null}
-              <div className="mt-2 flex flex-wrap gap-2">
-                {links.length ? (
-                  links.map((item) => (
-                    <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer" className={pillClass}>
-                      {item.label}
-                    </a>
-                  ))
-                ) : (
-                  <span className="text-sm text-[#b7b3ab]">Not available yet</span>
-                )}
+          <li key={key} className="overflow-hidden rounded-xl border border-white/[0.06] bg-[#2b2f3e]">
+            <button
+              id={buttonId}
+              type="button"
+              aria-expanded={open}
+              aria-controls={panelId}
+              className="flex min-h-11 w-full items-center gap-2.5 px-3 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483] focus-visible:ring-inset"
+              onClick={() => setOpenKey(open ? null : key)}
+            >
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#d4b483]/12 text-[#d4b483]">
+                <Home className="size-4" strokeWidth={1.6} aria-hidden />
+              </span>
+              <span className="min-w-0 flex-1 text-sm leading-snug font-medium break-words text-white">{listing.address}</span>
+              {listing.mls ? (
+                <span className="shrink-0 text-xs text-[#b7b3ab]">{listing.mls}</span>
+              ) : null}
+              <ChevronDown
+                className={`size-4 shrink-0 text-[#b7b3ab] transition-transform duration-200 motion-reduce:transition-none ${open ? "rotate-180" : ""}`}
+                aria-hidden
+              />
+            </button>
+            <div
+              id={panelId}
+              role="region"
+              aria-labelledby={buttonId}
+              inert={!open}
+              className={`grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+            >
+              <div className="overflow-hidden">
+                <div className="flex flex-wrap gap-2 px-3 pt-1 pb-3">
+                  {links.length ? (
+                    links.map((item) => (
+                      <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer" className={pillClass}>
+                        {item.label}
+                      </a>
+                    ))
+                  ) : (
+                    <span className="text-sm text-[#b7b3ab]">Not available yet</span>
+                  )}
+                </div>
               </div>
             </div>
           </li>

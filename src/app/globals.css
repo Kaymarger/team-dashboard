@@ -63,6 +63,11 @@
   html {
     @apply font-sans;
   }
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: clip;
+  }
   label:has(:required) > span:first-child::after {
     content: " *";
     color: #d4b483;
