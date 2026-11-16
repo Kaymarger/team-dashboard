@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useState } from "react";
 import {
+  ArrowUpRight,
   BookOpen,
   Building2,
   CalendarRange,
@@ -77,7 +78,7 @@ const groups: { label: string; tiles: Tile[] }[] = [
 const tiles = groups.flatMap((group) => group.tiles);
 
 const tileClass =
-  "group flex min-h-16 w-full items-start gap-3 rounded-2xl border border-[#e6e9f0] bg-white px-4 py-4 text-left shadow-[0_8px_24px_rgba(14,26,43,0.05)] transition hover:-translate-y-0.5 hover:border-[#294c7d]/30 hover:shadow-[0_14px_34px_rgba(14,26,43,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#294c7d] focus-visible:ring-offset-2";
+  "group relative flex min-h-[148px] w-full flex-col items-start justify-between rounded-2xl bg-[#383d50] p-5 text-left transition duration-200 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(212,180,131,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483]";
 
 function fileHref(listing: LinkedListing, id: string): string {
   if (id === "mls") return listing.mlsUrl;
@@ -95,7 +96,7 @@ function ListingFileDialog({
   linkLabel: string;
 }) {
   if (!listings.length) {
-    return <p className="text-sm text-[#5c5c5c]">No active listings right now.</p>;
+    return <p className="text-sm text-[#b7b3ab]">No active listings right now.</p>;
   }
   return (
     <ul className="space-y-2">
@@ -104,20 +105,20 @@ function ListingFileDialog({
         return (
           <li
             key={`${listing.mls}:${listing.address}`}
-            className="flex flex-col gap-1 rounded-xl border border-[#e7ebf2] bg-[#f8fafc] px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-2 rounded-2xl bg-[#2b2f3e] px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
           >
-            <span className="text-sm font-medium text-[#0e1a2b]">{listing.address}</span>
+            <span className="text-sm font-medium text-white">{listing.address}</span>
             {href ? (
               <a
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-9 items-center justify-center rounded-full bg-[#e7eef8] px-3 text-xs font-semibold text-[#294c7d] hover:bg-[#294c7d] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#294c7d]"
+                className="inline-flex h-9 items-center justify-center rounded-full border border-[#d4b483]/50 px-3 text-xs font-medium text-[#d4b483] hover:bg-[#d4b483] hover:text-[#2b2f3e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483]"
               >
                 {linkLabel}
               </a>
             ) : (
-              <span className="text-sm text-[#5c5c5c]">Not available yet</span>
+              <span className="text-sm text-[#b7b3ab]">Not available yet</span>
             )}
           </li>
         );
@@ -131,14 +132,25 @@ export function ActionBoard({
   listingsFailed,
   pendingSubjects,
   outstandingNotary,
+  query,
 }: {
   listings: LinkedListing[];
   listingsFailed: boolean;
   pendingSubjects: PendingSubject[];
   outstandingNotary: OutstandingNotary[];
+  query: string;
 }) {
   const [openId, setOpenId] = useState<string | null>(null);
   const titleId = useId();
+  const q = query.trim().toLowerCase();
+  const visibleGroups = groups
+    .map((group) => ({
+      ...group,
+      tiles: group.tiles.filter((tile) =>
+        !q || `${tile.label} ${tile.description}`.toLowerCase().includes(q),
+      ),
+    }))
+    .filter((group) => group.tiles.length > 0);
   const openTile = tiles.find((tile) => tile.id === openId && !tile.href) ?? null;
 
   useEffect(() => {
@@ -157,24 +169,28 @@ export function ActionBoard({
 
   return (
     <>
-      <div className="flex flex-col gap-8">
-        {groups.map((group) => (
-          <section key={group.label} aria-labelledby={`group-${group.label}`}>
-            <h2 id={`group-${group.label}`} className="text-sm font-semibold text-[#5c5c5c]">
+      <div className="flex flex-col gap-10">
+        {visibleGroups.length === 0 ? (
+          <p className="text-sm text-[#b7b3ab]">No actions match that search.</p>
+        ) : null}
+        {visibleGroups.map((group) => (
+          <section key={group.label} id={group.label.toLowerCase()} className="scroll-mt-24" aria-labelledby={`group-${group.label}`}>
+            <h2 id={`group-${group.label}`} className="text-[0.7rem] font-medium tracking-[0.22em] text-[#9a9eae] uppercase">
               {group.label}
             </h2>
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-4">
               {group.tiles.map((tile) => {
                 const Icon = tile.icon;
                 const inner = (
                   <>
-                    <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#e7eef8] text-[#294c7d] transition group-hover:bg-[#294c7d] group-hover:text-white">
-                      <Icon className="size-5" aria-hidden />
+                    <span className="flex size-12 items-center justify-center rounded-2xl bg-[#d4b483]/12 text-[#d4b483]">
+                      <Icon className="size-6" strokeWidth={1.5} aria-hidden />
                     </span>
-                    <span className="min-w-0">
-                      <span className="block text-sm font-semibold text-[#0e1a2b]">{tile.label}</span>
-                      <span className="mt-0.5 block text-sm leading-snug text-[#5c5c5c]">{tile.description}</span>
+                    <span className="mt-4 block">
+                      <span className="block text-base font-medium text-white">{tile.label}</span>
+                      <span className="mt-1 block text-sm leading-snug text-[#b7b3ab]">{tile.description}</span>
                     </span>
+                    <ArrowUpRight className="absolute top-4 right-4 size-4 text-[#d4b483] opacity-0 transition group-hover:opacity-100" aria-hidden />
                   </>
                 );
                 if (tile.href) {
@@ -196,25 +212,25 @@ export function ActionBoard({
       </div>
 
       {openTile ? (
-        <div className="fixed inset-0 z-50 flex bg-[#0e1a2b]/40" onClick={() => setOpenId(null)}>
+        <div className="fixed inset-0 z-50 flex bg-black/55" onClick={() => setOpenId(null)}>
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
-            className="ml-auto flex h-full w-full flex-col bg-white shadow-[0_24px_80px_rgba(14,26,43,0.24)] sm:max-w-xl"
+            className="ml-auto flex h-full w-full flex-col bg-[#323746] shadow-[0_24px_80px_rgba(0,0,0,0.45)] sm:max-w-xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex items-start justify-between gap-4 border-b border-[#e6e9f0] px-5 py-4 sm:px-6">
+            <div className="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-5 sm:px-6">
               <div>
-                <h2 id={titleId} className="font-heading text-xl font-semibold tracking-tight text-[#0e1a2b]">
+                <h2 id={titleId} className="text-2xl font-light tracking-tight text-white">
                   {openTile.label}
                 </h2>
-                <p className="mt-1 text-sm text-[#5c5c5c]">{openTile.description}</p>
+                <p className="mt-1 text-sm text-[#b7b3ab]">{openTile.description}</p>
               </div>
               <button
                 type="button"
                 autoFocus
-                className="flex size-11 shrink-0 items-center justify-center rounded-full text-[#5c5c5c] hover:bg-[#f3f5f8] hover:text-[#0e1a2b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#294c7d]"
+                className="flex size-11 shrink-0 items-center justify-center rounded-full text-[#c9c6bf] hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483]"
                 onClick={() => setOpenId(null)}
                 aria-label="Close"
               >

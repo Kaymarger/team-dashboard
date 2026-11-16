@@ -118,13 +118,13 @@ export function CincTicketForm() {
           type="file"
           accept="image/*"
           multiple
-          className={`${controlClass} py-2 file:mr-3 file:rounded-lg file:border-0 file:bg-[#e7eef8] file:px-2 file:py-1 file:text-xs file:font-medium file:text-[#294c7d]`}
+          className={`${controlClass} py-2 file:mr-3 file:rounded-lg file:border-0 file:bg-[#d4b483]/15 file:px-2 file:py-1 file:text-xs file:font-medium file:text-[#d4b483]`}
         />
-        <span className="text-sm text-[#5c5c5c]">Optional. Up to 3 images.</span>
+        <span className="text-sm text-[#b7b3ab]">Optional. Up to 3 images.</span>
       </Field>
       <SubmitButton pending={pending} />
       {notice?.status === "error" ? (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">
+        <p className="rounded-xl bg-[#4a4038] px-3 py-2 text-sm text-[#f0d7c4]" role="alert">
           {notice.message}
         </p>
       ) : null}

@@ -3,7 +3,7 @@
 import { useActionState, useRef, useState, type ReactNode } from "react";
 import { submitTeamRequest, type FormState } from "@/app/actions";
 import { SubmitButton, SuccessState } from "@/components/form-feedback";
-import { AgentField, controlClass, Field } from "@/components/fields";
+import { AgentField, controlClass, Field, SegmentedChoices } from "@/components/fields";
 import {
   buildingTypes,
   commissionOptions,
@@ -93,7 +93,7 @@ function FormRound({
         <SubmitButton pending={pending} />
       </form>
       {state?.status === "error" ? (
-        <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">
+        <p className="mt-3 rounded-xl bg-[#4a4038] px-3 py-2 text-sm text-[#f0d7c4]" role="alert">
           {state.message}
         </p>
       ) : null}
@@ -113,7 +113,7 @@ function PropertyField({
       <Field label="Property">
         <input name="property" required className={controlClass} placeholder="Address" />
         {listingsFailed ? (
-          <span className="text-[0.7rem] leading-snug text-amber-800">
+          <span className="text-[0.7rem] leading-snug text-[#e6c9a8]">
             Listings could not be loaded. Type the address.
           </span>
         ) : null}
@@ -184,16 +184,7 @@ function NotaryForm({ addresses }: { addresses: string[] }) {
           <input type="hidden" name="property" value={choice} />
         )}
         <Field label="Side">
-          <select name="side" required defaultValue="" className={controlClass}>
-            <option value="" disabled>
-              Select
-            </option>
-            {notarySides.map((side) => (
-              <option key={side} value={side}>
-                {side}
-              </option>
-            ))}
-          </select>
+          <SegmentedChoices name="side" options={notarySides} required />
         </Field>
         {notaryDetailFields.map((field) => (
           <Field key={field.name} label={field.label} className="sm:col-span-2">
@@ -252,7 +243,7 @@ function RemoveForm({ pending }: { pending: PendingSubject[] }) {
           <input type="hidden" name="agent" value={row?.agent ?? ""} />
           <input type="hidden" name="subject_removal_date" value={row?.subjectRemovalDate ?? ""} />
           {row ? (
-            <p className="text-sm text-[#5c5c5c]">
+            <p className="text-sm text-[#b7b3ab]">
               {row.agent || "No agent on the sheet"} · {row.subjectRemovalDate || "No removal date"}
             </p>
           ) : null}
@@ -299,51 +290,18 @@ function NewListingFields() {
           <input name="list_date" type="date" required className={controlClass} />
         </Field>
         <Field label="List Term">
-          <select name="list_term" required defaultValue="" className={controlClass}>
-            <option value="" disabled>
-              Select
-            </option>
-            {listTerms.map((term) => (
-              <option key={term} value={term}>
-                {term}
-              </option>
-            ))}
-          </select>
+          <SegmentedChoices name="list_term" options={listTerms} required />
         </Field>
         <Field label="List Price">
           <input name="list_price" required placeholder="$900,000" className={controlClass} />
         </Field>
         <Field label="Commission">
-          <select name="commission" required defaultValue="" className={controlClass}>
-            <option value="" disabled>
-              Select
-            </option>
-            {commissionOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          <SegmentedChoices name="commission" options={commissionOptions} required />
         </Field>
         <Field label="Offer Date">
-          <select
-            name="offer_date"
-            required
-            value={offerDate}
-            onChange={(event) => setOfferDate(event.target.value)}
-            className={controlClass}
-          >
-            <option value="" disabled>
-              Select
-            </option>
-            {yesNo.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          <SegmentedChoices name="offer_date" options={yesNo} required value={offerDate} onChange={setOfferDate} />
           {offerDate === "Yes" ? (
-            <span className="text-[0.72rem] text-[#5c5c5c]">{yesNotesHint}</span>
+            <span className="text-[0.72rem] text-[#b7b3ab]">{yesNotesHint}</span>
           ) : null}
         </Field>
         <Field label="Disclosure">
@@ -366,17 +324,8 @@ function NewListingFields() {
         </Field>
         {showBuilding ? (
           <Field label="Attached / Detached" className="sm:col-span-2">
-            <select name="building_type" required defaultValue="" className={controlClass}>
-              <option value="" disabled>
-                Select
-              </option>
-              {buildingTypes.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-            <span className="text-[0.72rem] leading-snug text-[#5c5c5c]">{pdsNote}</span>
+            <SegmentedChoices name="building_type" options={buildingTypes} required />
+            <span className="text-[0.72rem] leading-snug text-[#b7b3ab]">{pdsNote}</span>
           </Field>
         ) : null}
         <Field label="Lead Source" className="sm:col-span-2">
@@ -397,7 +346,7 @@ function NewListingFields() {
             ))}
           </select>
           {sourceConfig?.note ? (
-            <span className="text-[0.72rem] text-[#5c5c5c]">{sourceConfig.note}</span>
+            <span className="text-[0.72rem] text-[#b7b3ab]">{sourceConfig.note}</span>
           ) : null}
         </Field>
         {sourceConfig?.detail ? (
@@ -406,40 +355,22 @@ function NewListingFields() {
           </Field>
         ) : null}
         <Field label="Signage Needed">
-          <select
+          <SegmentedChoices
             name="signage_needed"
+            options={yesNo}
             required
             value={signage}
-            onChange={(event) => setSignage(event.target.value)}
-            className={controlClass}
-          >
-            <option value="" disabled>
-              Select
-            </option>
-            {yesNo.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+            onChange={setSignage}
+          />
           {signage === "Yes" ? (
-            <span className="text-[0.72rem] text-[#5c5c5c]">{yesNotesHint}</span>
+            <span className="text-[0.72rem] text-[#b7b3ab]">{yesNotesHint}</span>
           ) : null}
         </Field>
         <Field label="Send Listing Onboarding Form to Seller">
-          <select name="send_onboarding_form" required defaultValue="" className={controlClass}>
-            <option value="" disabled>
-              Select
-            </option>
-            {yesNo.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          <SegmentedChoices name="send_onboarding_form" options={yesNo} required />
         </Field>
         <div className="flex flex-col gap-1.5 sm:col-span-2">
-          <span className="text-xs font-medium text-[#5c5c5c]">Seller Emails</span>
+          <span className="text-sm font-medium text-[#f7f5f2]">Seller Emails</span>
           {emails.map((email, index) => (
             <div key={index} className="flex gap-1.5">
               <input
@@ -460,7 +391,7 @@ function NewListingFields() {
               {index > 1 ? (
                 <button
                   type="button"
-                  className="h-10 rounded-xl border border-[#e1e5ee] px-2 text-xs text-[#5c5c5c]"
+                  className="h-12 rounded-xl border border-white/10 px-2 text-xs text-[#c9c6bf]"
                   onClick={() => setEmails((current) => current.filter((_, itemIndex) => itemIndex !== index))}
                 >
                   Remove
@@ -470,7 +401,7 @@ function NewListingFields() {
           ))}
           <button
             type="button"
-            className="h-8 self-start rounded-xl border border-[#e1e5ee] px-2.5 text-xs font-medium text-[#294c7d]"
+            className="h-8 self-start rounded-xl border border-white/10 px-2.5 text-xs font-medium text-[#d4b483]"
             onClick={() => setEmails((current) => [...current, ""])}
           >
             Add Email
@@ -480,7 +411,7 @@ function NewListingFields() {
           <textarea name="notes" rows={3} placeholder="Anything else the team should know" className={`${controlClass} h-auto py-2`} />
         </Field>
       </div>
-      <p className="text-sm font-medium text-[#294c7d]">{newListingReminder}</p>
+      <p className="text-sm font-medium text-[#d4b483]">{newListingReminder}</p>
     </>
   );
 }
@@ -505,7 +436,7 @@ export function RequestFormPanel({
     return (
       <div className="flex flex-col gap-5">
         <div>
-          <h3 className="text-sm font-semibold text-[#0e1a2b]">Outstanding</h3>
+          <h3 className="text-sm font-semibold text-[#f7f5f2]">Outstanding</h3>
           <div className="mt-2">
             <OutstandingList rows={outstandingNotary} />
           </div>
