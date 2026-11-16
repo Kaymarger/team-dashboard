@@ -12,6 +12,7 @@ import {
   Files,
   Home,
   KeyRound,
+  LifeBuoy,
   MessageSquareText,
   Scale,
   X,
@@ -48,6 +49,7 @@ const tiles: Tile[] = [
   { id: "listing-media", label: "Listing Media", icon: Camera },
   { id: "vacation", label: "Submit Vacation Days", icon: CalendarRange },
   { id: "meeting-topic", label: "Team Meeting Topic", icon: MessageSquareText },
+  { id: "cinc-ticket", label: "Send CINC Support Ticket", icon: LifeBuoy },
 ];
 
 const tileClass =

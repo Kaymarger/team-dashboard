@@ -18,6 +18,7 @@ import {
   pdsNote,
   yesNo,
 } from "@/config/forms";
+import { CincTicketForm } from "@/components/cinc-ticket-form";
 import { OutstandingList } from "@/components/readouts";
 import type { OutstandingNotary, PendingSubject } from "@/lib/sheet-tables";
 import type { ScrapedListing } from "@/lib/parse-listings";
@@ -532,6 +533,7 @@ export function RequestFormPanel({
       </FormCard>
     );
   }
+  if (formId === "cinc-ticket") return <CincTicketForm />;
   if (formId === "meeting-topic") {
     return (
       <FormCard title="Team Meeting Topic" form="meeting-topic">

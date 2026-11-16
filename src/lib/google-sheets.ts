@@ -292,24 +292,47 @@ export async function ensureSheetTab(
   return actual;
 }
 
-/** Append one row in the order given, starting at column A. */
-export async function appendSheetRow(
+/** Append rows in the order given, starting at column A. */
+export async function appendSheetRows(
   spreadsheetId: string,
   tabTitle: string,
-  values: string[],
+  rows: string[][],
+  input: "USER_ENTERED" | "RAW" = "USER_ENTERED",
 ): Promise<void> {
+  if (!rows.length) return;
   const { token, email } = await accessToken();
   const range = `${quoteTitle(tabTitle)}!A1`;
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(range)}:append?valueInputOption=${input}&insertDataOption=INSERT_ROWS`;
   const { status, body } = await googleFetch(url, token, {
     method: "POST",
-    body: JSON.stringify({ values: [values] }),
+    body: JSON.stringify({ values: rows }),
   });
   if (status === 200) return;
   throw new SheetError(
     status,
     googleMessage(status, body, `add a row to ${tabTitle}`, email),
   );
+}
+
+/** Append one row in the order given, starting at column A. */
+export async function appendSheetRow(
+  spreadsheetId: string,
+  tabTitle: string,
+  values: string[],
+): Promise<void> {
+  await appendSheetRows(spreadsheetId, tabTitle, [values]);
+}
+
+/** The whole first row, including columns past Z. */
+async function readFirstRow(spreadsheetId: string, title: string): Promise<string[]> {
+  const { token, email } = await accessToken();
+  const range = `${quoteTitle(title)}!1:1`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(range)}?valueRenderOption=FORMATTED_VALUE&majorDimension=ROWS`;
+  const { status, body } = await googleFetch(url, token);
+  if (status !== 200) {
+    throw new SheetError(status, googleMessage(status, body, `read the ${title} header`, email));
+  }
+  return cellsFrom((body as { values?: unknown }).values)[0] ?? [];
 }
 
 export function requireSheetId(): string {
@@ -336,10 +359,23 @@ export async function appendNamedRow(
   headers: readonly string[],
   values: Record<string, string>,
 ): Promise<void> {
+  await appendNamedRows(tabTitle, headers, [values]);
+}
+
+/**
+ * Append several rows aligned to the sheet header. Missing columns are added
+ * on the right. Pass raw when a cell must be stored exactly, such as base64.
+ */
+export async function appendNamedRows(
+  tabTitle: string,
+  headers: readonly string[],
+  valueRows: Record<string, string>[],
+  options?: { raw?: boolean },
+): Promise<void> {
+  if (!valueRows.length) return;
   const spreadsheetId = requireSheetId();
   const actual = await ensureSheetTab(spreadsheetId, tabTitle, headers);
-  const rows = await readTabRows(spreadsheetId, [tabTitle]);
-  let columns = trimTrailing(rows.get(tabTitle)?.[0] ?? []);
+  let columns = trimTrailing(await readFirstRow(spreadsheetId, actual));
   if (!columns.length) columns = [...headers];
 
   const present = new Set(columns.map((column) => normalizeHeader(column)));
@@ -350,8 +386,10 @@ export async function appendNamedRow(
     await writeHeaderRow(spreadsheetId, actual, columns, token, email);
   }
 
-  const line = columns.map((column) => values[normalizeHeader(column)] ?? "");
-  await appendSheetRow(spreadsheetId, actual, line);
+  const lines = valueRows.map((values) =>
+    columns.map((column) => values[normalizeHeader(column)] ?? ""),
+  );
+  await appendSheetRows(spreadsheetId, actual, lines, options?.raw ? "RAW" : "USER_ENTERED");
 }
 
 export function normalizeHeader(value: string): string {

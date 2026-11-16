@@ -16,6 +16,8 @@ export const tabs = {
   notary: "Submit Notary Info",
   removeSubjects: "Remove Subjects",
   meetingTopics: "Meeting Topics",
+  cincTickets: "CINC Support Tickets",
+  ticketScreenshots: "Ticket Screenshots",
 } as const;
 
 export const readTabs = [

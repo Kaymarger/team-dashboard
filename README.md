@@ -61,6 +61,8 @@ Each submitted row is the whole handoff.
 | `Remove Subjects` | `timestamp`, `property`, `agent`, `subject_removal_date`, `notes`, `status` |
 | `New Listings` | `timestamp`, `agent`, `property_address`, `list_date`, `list_term`, `list_price`, `commission`, `offer_date` (`Yes`/`No`), `disclosure`, `building_type` (Attached/Detached, blank unless the disclosure is a Property Disclosure Statement), `seller_emails` (several addresses separated by `; `), `lead_source`, `lead_source_detail`, `signage_needed`, `send_onboarding_form`, `notes`, `status` |
 | `Meeting Topics` | `timestamp`, `agent`, `topic`, `details`, `status` |
+| `CINC Support Tickets` | `timestamp`, `agent`, `issue`, `screenshot_count`, `ticket_id`, `status` (`new`) |
+| `Ticket Screenshots` | `ticket_id`, `image_index` (1 for the first image), `filename`, `mime_type` (`image/jpeg`), `chunk_count`, then `chunk_1`, `chunk_2`, … one column per piece. One row per image. Each chunk is at most 45,000 characters of base64. To rebuild a photo, concatenate `chunk_1` through `chunk_{chunk_count}`, base64-decode that string, and save it as a `.jpg`. Ignore any later chunk columns on that row. |
 
 Open House Availability is only a link to the Google Form. It does not write a tab.
 
