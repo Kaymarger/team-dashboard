@@ -38,46 +38,24 @@ type Tile = {
   href?: string;
 };
 
-const groups: { label: string; tiles: Tile[] }[] = [
-  {
-    label: "Requests",
-    tiles: [
-      { id: "pond", label: "Request Pond Access", description: "Ask to be added to the pond.", icon: KeyRound },
-      { id: "open-house", label: "Open House Availability", description: "Open the shared availability form.", icon: DoorOpen, href: openHouseLink.href },
-      { id: "buyers-guide", label: "Buyer's Guide", description: "Request printed buyer's guides.", icon: BookOpen },
-      { id: "feature-sheets", label: "Feature Sheets", description: "Request feature sheet copies.", icon: Files },
-      { id: "cinc-ticket", label: "Send CINC Support Ticket", description: "Tell us what isn't working in CINC.", icon: LifeBuoy },
-    ],
-  },
-  {
-    label: "Listings",
-    tiles: [
-      { id: "new-listing", label: "New Listing", description: "Start the new-listing checklist.", icon: Home },
-      { id: "mls", label: "MLS Sheets", description: "Open MLS sheets for active listings.", icon: FileSpreadsheet },
-      { id: "strata", label: "Strata Documents", description: "Open strata documents for active listings.", icon: Building2 },
-      { id: "listing-media", label: "Listing Media", description: "Open photos and media for active listings.", icon: Camera },
-    ],
-  },
-  {
-    label: "Transactions",
-    tiles: [
-      { id: "notary", label: "Notary Info", description: "Send notary details for a file.", icon: Scale },
-      { id: "remove-subjects", label: "Remove Subjects", description: "Record a subject removal.", icon: ClipboardX },
-    ],
-  },
-  {
-    label: "Team",
-    tiles: [
-      { id: "vacation", label: "Submit Vacation Days", description: "Let the team know you'll be away.", icon: CalendarRange },
-      { id: "meeting-topic", label: "Team Meeting Topic", description: "Suggest something for the next meeting.", icon: MessageSquareText },
-    ],
-  },
+const tiles: Tile[] = [
+  { id: "pond", label: "Request Pond Access", description: "Ask to be added to the pond.", icon: KeyRound },
+  { id: "open-house", label: "Open House Availability", description: "Open the shared availability form.", icon: DoorOpen, href: openHouseLink.href },
+  { id: "buyers-guide", label: "Buyer's Guide", description: "Request printed buyer's guides.", icon: BookOpen },
+  { id: "feature-sheets", label: "Feature Sheets", description: "Request feature sheet copies.", icon: Files },
+  { id: "new-listing", label: "New Listing", description: "Start the new-listing checklist.", icon: Home },
+  { id: "mls", label: "MLS Sheets", description: "Open MLS sheets for active listings.", icon: FileSpreadsheet },
+  { id: "strata", label: "Strata Documents", description: "Open strata documents for active listings.", icon: Building2 },
+  { id: "listing-media", label: "Listing Media", description: "Open photos and media for active listings.", icon: Camera },
+  { id: "notary", label: "Notary Info", description: "Send notary details for a file.", icon: Scale },
+  { id: "remove-subjects", label: "Remove Subjects", description: "Record a subject removal.", icon: ClipboardX },
+  { id: "vacation", label: "Submit Vacation Days", description: "Let the team know you'll be away.", icon: CalendarRange },
+  { id: "meeting-topic", label: "Team Meeting Topic", description: "Suggest something for the next meeting.", icon: MessageSquareText },
+  { id: "cinc-ticket", label: "Send CINC Support Ticket", description: "Tell us what isn't working in CINC.", icon: LifeBuoy },
 ];
 
-const tiles = groups.flatMap((group) => group.tiles);
-
 const tileClass =
-  "group flex h-full min-h-[92px] w-full items-start gap-3 rounded-xl border border-white/[0.06] bg-[#383d50] p-4 text-left transition hover:border-[#d4b483]/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483]";
+  "group flex h-12 min-w-0 items-center gap-2 rounded-lg border border-white/[0.06] bg-[#383d50] px-2.5 text-left transition hover:border-[#d4b483]/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483]";
 
 function fileHref(listing: LinkedListing, id: string): string {
   if (id === "mls") return listing.mlsUrl;
@@ -142,14 +120,9 @@ export function ActionBoard({
   const [openId, setOpenId] = useState<string | null>(null);
   const titleId = useId();
   const q = query.trim().toLowerCase();
-  const visibleGroups = groups
-    .map((group) => ({
-      ...group,
-      tiles: group.tiles.filter((tile) =>
-        !q || `${tile.label} ${tile.description}`.toLowerCase().includes(q),
-      ),
-    }))
-    .filter((group) => group.tiles.length > 0);
+  const visibleTiles = tiles.filter(
+    (tile) => !q || `${tile.label} ${tile.description}`.toLowerCase().includes(q),
+  );
   const openTile = tiles.find((tile) => tile.id === openId && !tile.href) ?? null;
 
   useEffect(() => {
@@ -168,46 +141,48 @@ export function ActionBoard({
 
   return (
     <>
-      <div className="flex flex-col gap-10">
-        {visibleGroups.length === 0 ? (
+      <section id="actions" aria-label="Actions">
+        {visibleTiles.length === 0 ? (
           <p className="text-sm text-[#b7b3ab]">No actions match that search.</p>
-        ) : null}
-        {visibleGroups.map((group) => (
-          <section key={group.label} id={group.label.toLowerCase()} className="scroll-mt-24" aria-labelledby={`group-${group.label}`}>
-            <h2 id={`group-${group.label}`} className="text-[0.68rem] font-medium tracking-[0.16em] text-[#9a9eae] uppercase">
-              {group.label}
-            </h2>
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {group.tiles.map((tile) => {
-                const Icon = tile.icon;
-                const inner = (
-                  <>
-                    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#d4b483]/10 text-[#d4b483]">
-                      <Icon className="size-[18px]" strokeWidth={1.6} aria-hidden />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block text-sm font-semibold text-white">{tile.label}</span>
-                      <span className="mt-0.5 block text-xs leading-snug text-[#b7b3ab]">{tile.description}</span>
-                    </span>
-                  </>
-                );
-                if (tile.href) {
-                  return (
-                    <a key={tile.id} href={tile.href} target="_blank" rel="noopener noreferrer" className={tileClass}>
-                      {inner}
-                    </a>
-                  );
-                }
+        ) : (
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {visibleTiles.map((tile) => {
+              const Icon = tile.icon;
+              const inner = (
+                <>
+                  <Icon className="size-4 shrink-0 text-[#d4b483]" strokeWidth={1.7} aria-hidden />
+                  <span className="truncate text-xs font-medium text-white">{tile.label}</span>
+                </>
+              );
+              if (tile.href) {
                 return (
-                  <button key={tile.id} type="button" className={tileClass} onClick={() => setOpenId(tile.id)}>
+                  <a
+                    key={tile.id}
+                    href={tile.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={tile.description}
+                    className={tileClass}
+                  >
                     {inner}
-                  </button>
+                  </a>
                 );
-              })}
-            </div>
-          </section>
-        ))}
-      </div>
+              }
+              return (
+                <button
+                  key={tile.id}
+                  type="button"
+                  title={tile.description}
+                  className={tileClass}
+                  onClick={() => setOpenId(tile.id)}
+                >
+                  {inner}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </section>
 
       {openTile ? (
         <div className="fixed inset-0 z-50 flex bg-black/55" onClick={() => setOpenId(null)}>
