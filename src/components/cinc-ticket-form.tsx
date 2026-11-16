@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { SubmitButton, SuccessState } from "@/components/form-feedback";
 import { AgentField, controlClass, Field } from "@/components/fields";
 import { MAX_ENCODED_CHARS, MAX_SCREENSHOTS } from "@/lib/ticket-images";
 
@@ -94,12 +95,22 @@ export function CincTicketForm() {
     }
   }
 
+  if (notice?.status === "success") {
+    return <SuccessState message={notice.message} onAnother={() => setNotice(null)} />;
+  }
+
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-3">
+    <form onSubmit={onSubmit} className="flex flex-col gap-4">
       <h2 className="sr-only">Send CINC Support Ticket</h2>
       <AgentField />
       <Field label="Describe the Issue">
-        <textarea name="issue" required rows={4} className={`${controlClass} h-auto py-2`} />
+        <textarea
+          name="issue"
+          required
+          rows={4}
+          placeholder="What isn't working?"
+          className={`${controlClass} h-auto py-2`}
+        />
       </Field>
       <Field label="Screenshots">
         <input
@@ -109,20 +120,11 @@ export function CincTicketForm() {
           multiple
           className={`${controlClass} py-2 file:mr-3 file:rounded-lg file:border-0 file:bg-[#e7eef8] file:px-2 file:py-1 file:text-xs file:font-medium file:text-[#294c7d]`}
         />
-        <span className="text-[0.72rem] text-[#5c5c5c]">Optional. Up to 3 images.</span>
+        <span className="text-sm text-[#5c5c5c]">Optional. Up to 3 images.</span>
       </Field>
-      <button
-        type="submit"
-        disabled={pending}
-        className="mt-1 h-11 rounded-xl bg-[#0e1a2b] px-3 text-sm font-medium text-white hover:bg-[#294c7d] disabled:opacity-60"
-      >
-        {pending ? "Sending…" : "Submit"}
-      </button>
-      {notice ? (
-        <p
-          className={notice.status === "success" ? "mt-3 text-sm text-emerald-700" : "mt-3 text-sm text-red-700"}
-          role={notice.status === "success" ? "status" : "alert"}
-        >
+      <SubmitButton pending={pending} />
+      {notice?.status === "error" ? (
+        <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">
           {notice.message}
         </p>
       ) : null}

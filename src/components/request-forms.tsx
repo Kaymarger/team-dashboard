@@ -2,6 +2,7 @@
 
 import { useActionState, useRef, useState, type ReactNode } from "react";
 import { submitTeamRequest, type FormState } from "@/app/actions";
+import { SubmitButton, SuccessState } from "@/components/form-feedback";
 import { AgentField, controlClass, Field } from "@/components/fields";
 import {
   buildingTypes,
@@ -36,6 +37,36 @@ function FormCard({
   onSuccess?: () => void;
   children: ReactNode;
 }) {
+  const [round, setRound] = useState(0);
+  return (
+    <FormRound
+      key={round}
+      title={title}
+      form={form}
+      className={className}
+      onSuccess={onSuccess}
+      onAnother={() => setRound((value) => value + 1)}
+    >
+      {children}
+    </FormRound>
+  );
+}
+
+function FormRound({
+  title,
+  form,
+  className,
+  onSuccess,
+  onAnother,
+  children,
+}: {
+  title: string;
+  form: string;
+  className?: string;
+  onSuccess?: () => void;
+  onAnother: () => void;
+  children: ReactNode;
+}) {
   const formRef = useRef<HTMLFormElement>(null);
   const [state, action, pending] = useActionState<FormState | null, FormData>(
     async (prev, formData) => {
@@ -49,29 +80,20 @@ function FormCard({
     null,
   );
 
+  if (state?.status === "success") {
+    return <SuccessState message={state.message} onAnother={onAnother} />;
+  }
+
   return (
     <div className={className}>
       <h2 className="sr-only">{title}</h2>
-      <form ref={formRef} action={action} className="flex flex-col gap-3">
+      <form ref={formRef} action={action} className="flex flex-col gap-4">
         <input type="hidden" name="form" value={form} />
         {children}
-        <button
-          type="submit"
-          disabled={pending}
-          className="mt-1 h-11 rounded-xl bg-[#0e1a2b] px-3 text-sm font-medium text-white hover:bg-[#294c7d] disabled:opacity-60"
-        >
-          {pending ? "Sending…" : "Submit"}
-        </button>
+        <SubmitButton pending={pending} />
       </form>
-      {state ? (
-        <p
-          className={
-            state.status === "success"
-              ? "mt-3 text-sm text-emerald-700"
-              : "mt-3 text-sm text-red-700"
-          }
-          role={state.status === "success" ? "status" : "alert"}
-        >
+      {state?.status === "error" ? (
+        <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">
           {state.message}
         </p>
       ) : null}
@@ -156,7 +178,7 @@ function NotaryForm({ addresses }: { addresses: string[] }) {
         </Field>
         {other ? (
           <Field label="Address" className="sm:col-span-2">
-            <input name="property" required className={controlClass} />
+            <input name="property" required placeholder="Street address" className={controlClass} />
           </Field>
         ) : (
           <input type="hidden" name="property" value={choice} />
@@ -179,6 +201,7 @@ function NotaryForm({ addresses }: { addresses: string[] }) {
               name={field.name}
               rows={field.name === "notes" ? 2 : 3}
               required={field.required}
+              placeholder={field.name === "notes" ? "Anything else the team should know" : "Notary or lawyer details"}
               className={`${controlClass} h-auto py-2`}
             />
           </Field>
@@ -216,7 +239,7 @@ function RemoveForm({ pending }: { pending: PendingSubject[] }) {
       {other ? (
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Address" className="sm:col-span-2">
-            <input name="property" required className={controlClass} />
+            <input name="property" required placeholder="Street address" className={controlClass} />
           </Field>
           <AgentField />
           <Field label="Subject Removal Date">
@@ -236,7 +259,7 @@ function RemoveForm({ pending }: { pending: PendingSubject[] }) {
         </>
       )}
       <Field label="Notes">
-        <textarea name="notes" rows={2} className={`${controlClass} h-auto py-2`} />
+        <textarea name="notes" rows={2} placeholder="Anything else the team should know" className={`${controlClass} h-auto py-2`} />
       </Field>
     </FormCard>
   );
@@ -270,7 +293,7 @@ function NewListingFields() {
       <div className="grid gap-2 sm:grid-cols-2">
         <AgentField />
         <Field label="Property Address">
-          <input name="property_address" required className={controlClass} />
+          <input name="property_address" required placeholder="Street address" className={controlClass} />
         </Field>
         <Field label="List Date">
           <input name="list_date" type="date" required className={controlClass} />
@@ -288,7 +311,7 @@ function NewListingFields() {
           </select>
         </Field>
         <Field label="List Price">
-          <input name="list_price" required className={controlClass} />
+          <input name="list_price" required placeholder="$900,000" className={controlClass} />
         </Field>
         <Field label="Commission">
           <select name="commission" required defaultValue="" className={controlClass}>
@@ -379,7 +402,7 @@ function NewListingFields() {
         </Field>
         {sourceConfig?.detail ? (
           <Field label="Details" className="sm:col-span-2">
-            <input name="lead_source_detail" className={controlClass} />
+            <input name="lead_source_detail" placeholder="Add the detail here" className={controlClass} />
           </Field>
         ) : null}
         <Field label="Signage Needed">
@@ -454,7 +477,7 @@ function NewListingFields() {
           </button>
         </div>
         <Field label="Notes" className="sm:col-span-2">
-          <textarea name="notes" rows={2} className={`${controlClass} h-auto py-1.5`} />
+          <textarea name="notes" rows={3} placeholder="Anything else the team should know" className={`${controlClass} h-auto py-2`} />
         </Field>
       </div>
       <p className="text-sm font-medium text-[#294c7d]">{newListingReminder}</p>
@@ -528,7 +551,7 @@ export function RequestFormPanel({
           <input name="end_date" type="date" required className={controlClass} />
         </Field>
         <Field label="Notes">
-          <textarea name="notes" rows={2} className={`${controlClass} h-auto py-2`} />
+          <textarea name="notes" rows={3} placeholder="Optional" className={`${controlClass} h-auto py-2`} />
         </Field>
       </FormCard>
     );
@@ -539,10 +562,10 @@ export function RequestFormPanel({
       <FormCard title="Team Meeting Topic" form="meeting-topic">
         <AgentField />
         <Field label="Topic">
-          <input name="topic" required className={controlClass} />
+          <input name="topic" required placeholder="What should we talk about?" className={controlClass} />
         </Field>
         <Field label="Details">
-          <textarea name="details" rows={3} className={`${controlClass} h-auto py-2`} />
+          <textarea name="details" rows={3} placeholder="A little more context" className={`${controlClass} h-auto py-2`} />
         </Field>
       </FormCard>
     );

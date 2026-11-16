@@ -63,6 +63,15 @@
   html {
     @apply font-sans;
   }
+  label:has(:required) > span:first-child::after {
+    content: " *";
+    color: #294c7d;
+  }
+  input:user-invalid,
+  select:user-invalid,
+  textarea:user-invalid {
+    border-color: #b91c1c;
+  }
 }
 
 @keyframes rise {

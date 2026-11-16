@@ -23,23 +23,21 @@ export default async function LoginPage({
   const invalid = params.error === "1";
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center px-5 py-12">
-      <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-[0_20px_60px_rgba(14,26,43,0.08)] ring-1 ring-[#0e1a2b]/5">
+    <main className="relative flex min-h-screen items-center justify-center px-5 py-16">
+      <div className="w-full max-w-md rounded-3xl border border-[#e6e9f0] bg-white p-8 shadow-[0_24px_70px_rgba(14,26,43,0.08)] sm:p-10">
         <Image
           src={brand.logo}
           alt=""
-          width={48}
-          height={48}
-          className="h-12 w-12 object-contain"
+          width={56}
+          height={56}
+          className="h-14 w-14 object-contain"
         />
-        <p className="mt-5 text-sm font-semibold tracking-wide text-[#294c7d]">
-          {brand.name}
-        </p>
-        <h1 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-[#0e1a2b]">
+        <p className="mt-6 text-sm font-medium text-[#294c7d]">{brand.name}</p>
+        <h1 className="mt-1 font-heading text-3xl font-semibold tracking-tight text-[#0e1a2b]">
           Sign in
         </h1>
-        <p className="mt-2 text-sm text-[#5c5c5c]">
-          {brand.group}. Enter the team password.
+        <p className="mt-2 text-sm leading-relaxed text-[#5c5c5c]">
+          {brand.group}. Enter the shared team password to open the dashboard.
         </p>
 
         {setup ? (
@@ -72,12 +70,13 @@ export default async function LoginPage({
               autoComplete="current-password"
               required
               autoFocus
-              className="h-11 rounded-xl border-[#e1e5ee] bg-white px-3 text-base text-[#0e1a2b]"
+              placeholder="Team password"
+              className="h-12 rounded-xl border-[#e1e5ee] bg-white px-3 text-base text-[#0e1a2b]"
             />
           </div>
           <button
             type="submit"
-            className={cn(buttonVariants({ size: "lg" }), "h-10 w-full rounded-2xl text-sm")}
+            className={cn(buttonVariants({ size: "lg" }), "h-12 w-full rounded-xl text-sm font-semibold")}
           >
             Sign in
           </button>

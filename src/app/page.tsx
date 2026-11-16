@@ -11,6 +11,19 @@ import { visibleListings } from "@/lib/parse-listings";
 
 export const dynamic = "force-dynamic";
 
+function greeting(now = new Date()): string {
+  const hour = Number(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Vancouver",
+      hour: "numeric",
+      hourCycle: "h23",
+    }).format(now),
+  );
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
 export default async function HomePage() {
   await connection();
   const data = await loadDashboard();
@@ -35,15 +48,16 @@ export default async function HomePage() {
           <Image
             src={brand.logo}
             alt=""
-            width={40}
-            height={40}
-            className="h-10 w-10 shrink-0 object-contain"
+            width={44}
+            height={44}
+            className="h-11 w-11 shrink-0 object-contain"
           />
           <div className="min-w-0">
-            <h1 className="font-heading text-xl font-semibold tracking-tight text-[#0e1a2b]">{brand.name}</h1>
-            <p className="truncate text-sm text-[#5c5c5c]">
-              {brand.group} · {brand.office}
-            </p>
+            <p className="text-sm font-medium text-[#294c7d]">{greeting()}</p>
+            <h1 className="truncate font-heading text-2xl font-semibold tracking-tight text-[#0e1a2b]">
+              {brand.name}
+            </h1>
+            <p className="truncate text-sm text-[#5c5c5c]">{brand.group}</p>
           </div>
         </div>
         <SignOutButton />
@@ -77,19 +91,21 @@ export default async function HomePage() {
         </div>
       </div>
 
-      <nav aria-label="Quick Links" className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-1">
-        <span className="text-sm font-medium text-[#5c5c5c]">Quick Links</span>
-        {quickLinks.map((link) => (
-          <a
-            key={link.href}
-            href={link.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-medium text-[#294c7d] underline-offset-4 hover:underline"
-          >
-            {link.label}
-          </a>
-        ))}
+      <nav aria-label="Quick Links" className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap sm:items-center">
+        <span className="text-sm font-semibold text-[#5c5c5c]">Quick Links</span>
+        <div className="flex flex-wrap gap-2">
+          {quickLinks.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-10 items-center rounded-full border border-[#e6e9f0] bg-white px-4 text-sm font-medium text-[#294c7d] shadow-sm hover:border-[#294c7d]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#294c7d] focus-visible:ring-offset-2"
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
       </nav>
     </main>
   );
