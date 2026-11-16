@@ -55,7 +55,7 @@ const tiles: Tile[] = [
 ];
 
 const tileClass =
-  "group flex min-h-11 min-w-0 items-center gap-2 rounded-lg border border-white/[0.06] bg-[#383d50] px-2.5 py-2 text-left transition hover:border-[#d4b483]/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483] sm:h-12 sm:py-0";
+  "group flex min-h-11 min-w-0 items-center gap-2 rounded-lg border border-[#e5e2dc] bg-white px-2.5 py-2 text-left shadow-[0_1px_2px_rgba(28,28,28,0.04)] transition hover:border-[#1f2326] hover:bg-[#f1efea] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a8875a] sm:h-12 sm:py-0";
 
 function fileHref(listing: LinkedListing, id: string): string {
   if (id === "mls") return listing.mlsUrl;
@@ -73,7 +73,7 @@ function ListingFileDialog({
   linkLabel: string;
 }) {
   if (!listings.length) {
-    return <p className="text-sm text-[#b7b3ab]">No active listings right now.</p>;
+    return <p className="text-sm text-[#716c65]">No active listings right now.</p>;
   }
   return (
     <ul className="space-y-2">
@@ -82,20 +82,20 @@ function ListingFileDialog({
         return (
           <li
             key={`${listing.mls}:${listing.address}`}
-            className="flex min-w-0 flex-col gap-2 rounded-2xl bg-[#2b2f3e] px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+            className="flex min-w-0 flex-col gap-2 rounded-2xl border border-[#e5e2dc] bg-[#f7f6f3] px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
           >
-            <span className="min-w-0 text-sm font-medium break-words text-white">{listing.address}</span>
+            <span className="min-w-0 text-sm font-medium break-words text-[#1c1c1c]">{listing.address}</span>
             {href ? (
               <a
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-11 shrink-0 items-center justify-center rounded-full border border-[#d4b483]/50 px-3 text-sm font-medium text-[#d4b483] hover:bg-[#d4b483] hover:text-[#2b2f3e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483]"
+                className="inline-flex h-11 shrink-0 items-center justify-center rounded-full border border-[#1f2326] px-3 text-sm font-medium text-[#1f2326] hover:bg-[#1f2326] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a8875a]"
               >
                 {linkLabel}
               </a>
             ) : (
-              <span className="text-sm text-[#b7b3ab]">Not available yet</span>
+              <span className="text-sm text-[#716c65]">Not available yet</span>
             )}
           </li>
         );
@@ -143,15 +143,15 @@ export function ActionBoard({
     <>
       <section id="actions" aria-label="Actions" className="min-w-0">
         {visibleTiles.length === 0 ? (
-          <p className="text-sm text-[#b7b3ab]">No actions match that search.</p>
+          <p className="text-sm text-[#716c65]">No actions match that search.</p>
         ) : (
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {visibleTiles.map((tile) => {
               const Icon = tile.icon;
               const inner = (
                 <>
-                  <Icon className="size-4 shrink-0 text-[#d4b483]" strokeWidth={1.7} aria-hidden />
-                  <span className="min-w-0 text-[0.8125rem] leading-snug font-medium break-words text-white sm:truncate sm:text-xs">{tile.label}</span>
+                  <Icon className="size-4 shrink-0 text-[#1f2326]" strokeWidth={1.7} aria-hidden />
+                  <span className="min-w-0 text-[0.8125rem] leading-snug font-medium break-words text-[#1c1c1c] sm:truncate sm:text-xs">{tile.label}</span>
                 </>
               );
               if (tile.href) {
@@ -190,20 +190,20 @@ export function ActionBoard({
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
-            className="flex h-dvh w-full max-w-full flex-col bg-[#323746] pt-[env(safe-area-inset-top)] shadow-[0_24px_80px_rgba(0,0,0,0.45)] sm:ml-auto sm:h-full sm:max-w-xl"
+            className="flex h-dvh w-full max-w-full flex-col bg-white pt-[env(safe-area-inset-top)] shadow-[0_24px_80px_rgba(28,28,28,0.12)] sm:ml-auto sm:h-full sm:max-w-xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex shrink-0 items-start justify-between gap-4 border-b border-white/10 px-4 py-4 sm:px-6 sm:py-5">
+            <div className="flex shrink-0 items-start justify-between gap-4 border-b border-[#e5e2dc] px-4 py-4 sm:px-6 sm:py-5">
               <div className="min-w-0">
-                <h2 id={titleId} className="text-xl font-light tracking-tight text-white sm:text-2xl">
+                <h2 id={titleId} className="text-xl font-light tracking-tight text-[#1c1c1c] sm:text-2xl">
                   {openTile.label}
                 </h2>
-                <p className="mt-1 text-sm text-[#b7b3ab]">{openTile.description}</p>
+                <p className="mt-1 text-sm text-[#716c65]">{openTile.description}</p>
               </div>
               <button
                 type="button"
                 autoFocus
-                className="flex size-11 shrink-0 items-center justify-center rounded-full text-[#c9c6bf] hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483]"
+                className="flex size-11 shrink-0 items-center justify-center rounded-full text-[#3a3a3a] hover:bg-[#f1efea] hover:text-[#1c1c1c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a8875a]"
                 onClick={() => setOpenId(null)}
                 aria-label="Close"
               >

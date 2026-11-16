@@ -17,8 +17,8 @@ export function UpcomingDates({ dates }: { dates: ImportantDate[] }) {
   if (!upcoming.length) {
     return (
       <div className="flex items-start gap-3">
-        <CalendarDays className="mt-0.5 size-4 shrink-0 text-[#d4b483]" aria-hidden />
-        <p className="text-sm text-[#b7b3ab]">Nothing on the calendar yet.</p>
+        <CalendarDays className="mt-0.5 size-4 shrink-0 text-[#a8875a]" aria-hidden />
+        <p className="text-sm text-[#716c65]">Nothing on the calendar yet.</p>
       </div>
     );
   }
@@ -28,15 +28,15 @@ export function UpcomingDates({ dates }: { dates: ImportantDate[] }) {
         const parts = dateParts(item);
         return (
           <li key={`${item.date}-${item.title}-${index}`} className="flex items-center gap-4">
-            <div className="flex w-12 shrink-0 flex-col items-center rounded-lg border border-white/[0.06] bg-[#2b2f3e] py-1.5">
-              <span className="text-[0.65rem] tracking-[0.14em] text-[#d4b483] uppercase">
+            <div className="flex w-12 shrink-0 flex-col items-center rounded-lg bg-[#f1efea] py-1.5">
+              <span className="text-[0.65rem] tracking-[0.14em] text-[#1f2326] uppercase">
                 {parts?.month ?? "Date"}
               </span>
-              <span className="text-xl font-semibold text-white">{parts?.day ?? "—"}</span>
+              <span className="text-xl font-semibold text-[#1f2326]">{parts?.day ?? "—"}</span>
             </div>
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-white">{item.title || "Untitled"}</p>
-              {item.notes ? <p className="mt-0.5 line-clamp-2 text-xs text-[#b7b3ab]">{item.notes}</p> : null}
+              <p className="truncate text-sm font-medium text-[#1c1c1c]">{item.title || "Untitled"}</p>
+              {item.notes ? <p className="mt-0.5 line-clamp-2 text-xs text-[#716c65]">{item.notes}</p> : null}
             </div>
           </li>
         );
@@ -47,14 +47,14 @@ export function UpcomingDates({ dates }: { dates: ImportantDate[] }) {
 
 export function OutstandingList({ rows }: { rows: OutstandingNotary[] }) {
   if (!rows.length) {
-    return <p className="text-sm text-[#b7b3ab]">None outstanding.</p>;
+    return <p className="text-sm text-[#716c65]">None outstanding.</p>;
   }
   return (
     <ul className="max-h-40 space-y-2 overflow-y-auto pr-1">
       {rows.map((row, index) => (
-        <li key={`${row.address}-${index}`} className="text-sm leading-snug text-white">
+        <li key={`${row.address}-${index}`} className="text-sm leading-snug text-[#1c1c1c]">
           <span className="font-medium">{row.address || "Address not set"}</span>
-          <span className="text-[#b7b3ab]">
+          <span className="text-[#716c65]">
             {row.side ? ` · ${row.side}` : ""}
             {row.closingDate ? ` · ${row.closingDate}` : ""}
           </span>

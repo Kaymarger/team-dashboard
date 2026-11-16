@@ -12,7 +12,7 @@ type ListingRow = {
 };
 
 const pillClass =
-  "inline-flex h-11 items-center justify-center rounded-full border border-[#d4b483]/45 px-3 text-sm font-medium text-[#d4b483] transition hover:bg-[#d4b483] hover:text-[#2b2f3e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483]";
+  "inline-flex h-11 items-center justify-center rounded-full border border-[#1f2326] px-3 text-sm font-medium text-[#1f2326] transition hover:bg-[#1f2326] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a8875a]";
 
 export function ListingsCard({
   listings,
@@ -26,7 +26,7 @@ export function ListingsCard({
 
   if (!listings.length && error) {
     return (
-      <p className="rounded-xl bg-[#4a4038] px-3 py-3 text-sm leading-relaxed text-[#f0d7c4]">
+      <p className="rounded-xl bg-[#f6f1ea] px-3 py-3 text-sm leading-relaxed text-[#6b3a2e]">
         Active listings could not be loaded.
       </p>
     );
@@ -34,9 +34,9 @@ export function ListingsCard({
 
   if (!listings.length) {
     return (
-      <div className="flex items-start gap-3 rounded-xl bg-[#2b2f3e] px-3 py-4">
-        <Home className="mt-0.5 size-4 shrink-0 text-[#d4b483]" aria-hidden />
-        <p className="text-sm text-[#b7b3ab]">No active listings right now.</p>
+      <div className="flex items-start gap-3 rounded-xl bg-[#f7f6f3] px-3 py-4">
+        <Home className="mt-0.5 size-4 shrink-0 text-[#1f2326]" aria-hidden />
+        <p className="text-sm text-[#716c65]">No active listings right now.</p>
       </div>
     );
   }
@@ -54,24 +54,24 @@ export function ListingsCard({
           { label: "Listing Media", href: listing.mediaUrl },
         ].filter((item) => item.href.trim());
         return (
-          <li key={key} className="overflow-hidden rounded-xl border border-white/[0.06] bg-[#2b2f3e]">
+          <li key={key} className="overflow-hidden rounded-xl border border-[#e5e2dc] bg-white">
             <button
               id={buttonId}
               type="button"
               aria-expanded={open}
               aria-controls={panelId}
-              className="flex min-h-11 w-full items-center gap-2.5 px-3 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4b483] focus-visible:ring-inset"
+              className="flex min-h-11 w-full items-center gap-2.5 px-3 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a8875a] focus-visible:ring-inset"
               onClick={() => setOpenKey(open ? null : key)}
             >
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#d4b483]/12 text-[#d4b483]">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#f1efea] text-[#1f2326]">
                 <Home className="size-4" strokeWidth={1.6} aria-hidden />
               </span>
-              <span className="min-w-0 flex-1 text-sm leading-snug font-medium break-words text-white">{listing.address}</span>
+              <span className="min-w-0 flex-1 text-sm leading-snug font-medium break-words text-[#1c1c1c]">{listing.address}</span>
               {listing.mls ? (
-                <span className="shrink-0 text-xs text-[#b7b3ab]">{listing.mls}</span>
+                <span className="shrink-0 text-xs text-[#716c65]">{listing.mls}</span>
               ) : null}
               <ChevronDown
-                className={`size-4 shrink-0 text-[#b7b3ab] transition-transform duration-200 motion-reduce:transition-none ${open ? "rotate-180" : ""}`}
+                className={`size-4 shrink-0 text-[#716c65] transition-transform duration-200 motion-reduce:transition-none ${open ? "rotate-180" : ""}`}
                 aria-hidden
               />
             </button>
@@ -91,7 +91,7 @@ export function ListingsCard({
                       </a>
                     ))
                   ) : (
-                    <span className="text-sm text-[#b7b3ab]">Not available yet</span>
+                    <span className="text-sm text-[#716c65]">Not available yet</span>
                   )}
                 </div>
               </div>
