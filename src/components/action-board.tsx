@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useState } from "react";
 import {
+  BookMarked,
   BookOpen,
   Building2,
   CalendarRange,
@@ -13,8 +14,10 @@ import {
   Home,
   KeyRound,
   LifeBuoy,
+  Mail,
   MessageSquareText,
   Scale,
+  UserMinus,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -40,9 +43,11 @@ type Tile = {
 
 const tiles: Tile[] = [
   { id: "pond", label: "Request Pond Access", description: "Ask to be added to the pond.", icon: KeyRound },
+  { id: "remove-pond", label: "Remove from Pond", description: "Ask to be removed from the pond.", icon: UserMinus },
   { id: "open-house", label: "Open House Availability", description: "Open the shared availability form.", icon: DoorOpen, href: openHouseLink.href },
   { id: "buyers-guide", label: "Buyer's Guide", description: "Request printed buyer's guides.", icon: BookOpen },
-  { id: "feature-sheets", label: "Feature Sheets", description: "Request feature sheet copies.", icon: Files },
+  { id: "sellers-guide", label: "Seller's Guide", description: "Request printed seller's guides.", icon: BookMarked },
+  { id: "feature-sheets", label: "Print Feature Sheets", description: "Request printed feature sheets.", icon: Files },
   { id: "new-listing", label: "New Listing", description: "Start the new-listing checklist.", icon: Home },
   { id: "mls", label: "MLS Sheets", description: "Open MLS sheets for active listings.", icon: FileSpreadsheet },
   { id: "strata", label: "Strata Documents", description: "Open strata documents for active listings.", icon: Building2 },
@@ -51,6 +56,7 @@ const tiles: Tile[] = [
   { id: "remove-subjects", label: "Remove Subjects", description: "Record a subject removal.", icon: ClipboardX },
   { id: "vacation", label: "Submit Vacation Days", description: "Let the team know you'll be away.", icon: CalendarRange },
   { id: "meeting-topic", label: "Team Meeting Topic", description: "Suggest something for the next meeting.", icon: MessageSquareText },
+  { id: "message-kayla", label: "Msg Kayla", description: "Send Kayla a note.", icon: Mail },
   { id: "cinc-ticket", label: "Send CINC Support Ticket", description: "Tell us what isn't working in CINC.", icon: LifeBuoy },
 ];
 

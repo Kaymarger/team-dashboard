@@ -1,7 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { addressesMatch, parseFeaturedHtml, titleCaseAddress, visibleListings } from "./parse-listings";
-import { importantDatesFrom, transactionsYtdFrom } from "./sheet-tables";
+import {
+  awayAgentsFrom,
+  formatCurrency,
+  importantDatesFrom,
+  parseSheetDate,
+  statValueFrom,
+  transactionsYtdFrom,
+} from "./sheet-tables";
 import { buildRequest, RequestError } from "./requests";
 
 const html = `
@@ -224,4 +231,72 @@ test("new listing requires building type only for PDS", () => {
   assert.equal(built.values.seller_emails, "seller@example.com");
   assert.equal(built.values.lead_source_detail, "");
   assert.equal(built.headers.at(-1), "status");
+});
+
+test("new handoff forms write their own tabs", () => {
+  const pond = buildRequest("remove-pond", { agent: "Cassie Kang" }, ctx);
+  assert.equal(pond.tab, "Remove from Pond");
+  assert.deepEqual(pond.headers, ["timestamp", "agent", "status"]);
+  assert.equal(pond.values.status, "new");
+
+  const guide = buildRequest("sellers-guide", { agent: "Kevin Barrett", copies: "3" }, ctx);
+  assert.equal(guide.tab, "Request Seller's Guide");
+  assert.deepEqual(guide.headers, ["timestamp", "agent", "copies", "status"]);
+  assert.equal(guide.values.copies, "3");
+
+  const message = buildRequest(
+    "message-kayla",
+    { agent: "Ann-Marie Copping", message: "Please call the seller." },
+    ctx,
+  );
+  assert.equal(message.tab, "Messages to Kayla");
+  assert.deepEqual(message.headers, ["timestamp", "agent", "message", "status"]);
+  assert.equal(message.values.message, "Please call the seller.");
+  assert.equal(message.values.status, "new");
+
+  const sheets = buildRequest(
+    "feature-sheets",
+    { property: "104 3621 W 26th Avenue, Vancouver", agent: "Cassie Kang", copies: "2" },
+    ctx,
+  );
+  assert.equal(sheets.tab, "Request Feature Sheets");
+});
+
+test("team volume is currency and read from team_volume_ytd", () => {
+  assert.equal(formatCurrency("90696373"), "$90,696,373");
+  assert.equal(formatCurrency("$90,696,373"), "$90,696,373");
+  assert.equal(
+    statValueFrom(
+      [
+        ["key", "value"],
+        ["transactions_ytd", "85"],
+        ["team_volume_ytd", "90696373"],
+      ],
+      "team_volume_ytd",
+    ),
+    "90696373",
+  );
+  assert.equal(transactionsYtdFrom([["transactions_ytd", "85"], ["team_volume_ytd", "1"]]), "85");
+});
+
+test("away list keeps vacations that overlap the next two weeks", () => {
+  const today = "2026-11-25";
+  const rows = [
+    ["timestamp", "agent", "start_date", "end_date", "notes", "status"],
+    ["2026-11-01 09:00:00", "Doris Stratoberdha", "2026-11-01", "2026-11-10", "", "new"],
+    ["2026-11-20 09:00:00", "Cassie Kang", "December 1, 2026", "12/5/2026", "", "new"],
+    ["2026-11-20 09:00:00", "Casey Archibald", "2026-11-24", "2026-11-28", "", "new"],
+    ["2026-11-20 09:00:00", "Kevin Barrett", "25/11/2026", "2026-11-25", "", "new"],
+    ["2026-11-20 09:00:00", "Chantel Machnik", "2026-12-20", "2026-12-22", "", "new"],
+  ];
+  const away = awayAgentsFrom(rows, today);
+  assert.deepEqual(
+    away.map((item) => item.agent),
+    ["Casey Archibald", "Kevin Barrett", "Cassie Kang"],
+  );
+  assert.equal(away[0].range, "Nov 24–28, 2026");
+  assert.equal(away[1].range, "Nov 25, 2026");
+  assert.equal(away[2].range, "Dec 1–5, 2026");
+  const serial = String(Math.round((Date.UTC(2026, 10, 25) - Date.UTC(1899, 11, 30)) / 86400000));
+  assert.equal(parseSheetDate(serial), "2026-11-25");
 });

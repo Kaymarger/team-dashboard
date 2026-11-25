@@ -7,8 +7,11 @@ export const tabs = {
   pendingSubjects: "Pending Subjects",
   newListings: "New Listings",
   pond: "Request Pond Access",
+  removePond: "Remove from Pond",
   buyersGuide: "Request Buyer's Guide",
+  sellersGuide: "Request Seller's Guide",
   featureSheets: "Request Feature Sheets",
+  messagesKayla: "Messages to Kayla",
   strata: "Strata Documents",
   listingMedia: "Listing Media",
   mls: "MLS Sheet",
@@ -26,4 +29,5 @@ export const readTabs = [
   tabs.listingFiles,
   tabs.outstandingNotary,
   tabs.pendingSubjects,
+  tabs.vacation,
 ] as const;

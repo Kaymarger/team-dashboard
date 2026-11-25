@@ -454,6 +454,13 @@ export function RequestFormPanel({
       </FormCard>
     );
   }
+  if (formId === "remove-pond") {
+    return (
+      <FormCard title="Remove from Pond" form="remove-pond">
+        <AgentField />
+      </FormCard>
+    );
+  }
   if (formId === "buyers-guide") {
     return (
       <FormCard title="Request Buyer's Guide" form="buyers-guide">
@@ -462,9 +469,33 @@ export function RequestFormPanel({
       </FormCard>
     );
   }
+  if (formId === "sellers-guide") {
+    return (
+      <FormCard title="Seller's Guide" form="sellers-guide">
+        <AgentField />
+        <CopiesField min={copyLimits.sellersGuide.min} max={copyLimits.sellersGuide.max} />
+      </FormCard>
+    );
+  }
+  if (formId === "message-kayla") {
+    return (
+      <FormCard title="Msg Kayla" form="message-kayla">
+        <AgentField />
+        <Field label="Message">
+          <textarea
+            name="message"
+            required
+            rows={4}
+            placeholder="What should Kayla know?"
+            className={`${controlClass} h-auto py-2`}
+          />
+        </Field>
+      </FormCard>
+    );
+  }
   if (formId === "feature-sheets") {
     return (
-      <FormCard title="Request Feature Sheets" form="feature-sheets">
+      <FormCard title="Print Feature Sheets" form="feature-sheets">
         <PropertyField listings={listings} listingsFailed={listingsFailed} />
         <AgentField />
         <CopiesField min={copyLimits.featureSheets.min} max={copyLimits.featureSheets.max} />

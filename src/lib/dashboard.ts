@@ -3,11 +3,15 @@ import { addressesMatch } from "@/lib/parse-listings";
 import { getActiveListings } from "@/lib/listings";
 import { readTabRows, requireSheetId, SheetError } from "@/lib/google-sheets";
 import {
+  awayAgentsFrom,
+  formatCurrency,
   importantDatesFrom,
   listingFilesFrom,
   outstandingNotaryFrom,
   pendingSubjectsFrom,
+  statValueFrom,
   transactionsYtdFrom,
+  type AwayAgent,
   type ImportantDate,
   type ListingFile,
   type OutstandingNotary,
@@ -19,6 +23,8 @@ export type DashboardData = {
   sheetError: string | null;
   dates: ImportantDate[];
   transactionsYtd: string | null;
+  teamVolume: string | null;
+  away: AwayAgent[];
   listings: ScrapedListing[];
   listingsError: string | null;
   listingFiles: ListingFile[];
@@ -52,6 +58,8 @@ async function loadSheet(): Promise<Omit<DashboardData, "listings" | "listingsEr
     sheetError: null as string | null,
     dates: [],
     transactionsYtd: null as string | null,
+    teamVolume: null as string | null,
+    away: [] as AwayAgent[],
     listingFiles: [],
     outstandingNotary: [],
     pendingSubjects: [],
@@ -63,6 +71,8 @@ async function loadSheet(): Promise<Omit<DashboardData, "listings" | "listingsEr
       sheetError: null,
       dates: importantDatesFrom(tables.get(tabs.importantDates) ?? []),
       transactionsYtd: transactionsYtdFrom(tables.get(tabs.stats) ?? []),
+      teamVolume: formatCurrency(statValueFrom(tables.get(tabs.stats) ?? [], "team_volume_ytd")),
+      away: awayAgentsFrom(tables.get(tabs.vacation) ?? []),
       listingFiles: listingFilesFrom(tables.get(tabs.listingFiles) ?? []),
       outstandingNotary: outstandingNotaryFrom(tables.get(tabs.outstandingNotary) ?? []),
       pendingSubjects: pendingSubjectsFrom(tables.get(tabs.pendingSubjects) ?? []),

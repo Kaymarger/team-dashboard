@@ -69,6 +69,7 @@ export const leadSources: LeadSource[] = [
 
 export const copyLimits = {
   buyersGuide: { min: 1, max: 5 },
+  sellersGuide: { min: 1, max: 5 },
   featureSheets: { min: 1, max: 15 },
 } as const;
 

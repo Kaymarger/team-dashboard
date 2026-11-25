@@ -113,6 +113,13 @@ export function parseSheetDate(value: string): string | null {
     if (!month) return null;
     return ymd(Number(dayFirst[3]), month, Number(dayFirst[1]));
   }
+  if (/^\d{5}$/.test(raw)) {
+    const serial = Number(raw);
+    if (serial >= 20000 && serial <= 80000) {
+      const utc = new Date(Date.UTC(1899, 11, 30) + serial * 86400000);
+      return ymd(utc.getUTCFullYear(), utc.getUTCMonth() + 1, utc.getUTCDate());
+    }
+  }
   const slash = raw.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{2,4})$/);
   if (slash) {
     const year = slash[3].length === 2 ? 2000 + Number(slash[3]) : Number(slash[3]);
@@ -154,15 +161,99 @@ export function importantDatesFrom(rows: string[][], today = vancouverToday()): 
   });
 }
 
-export function transactionsYtdFrom(rows: string[][]): string | null {
+export function statValueFrom(rows: string[][], key: string): string | null {
+  const wanted = normalizeHeader(key);
   for (const row of rows) {
     for (let index = 0; index < row.length; index += 1) {
-      if (normalizeHeader(row[index] ?? "") !== "transactions_ytd") continue;
+      if (normalizeHeader(row[index] ?? "") !== wanted) continue;
       const next = row.slice(index + 1).find((cell) => cell.trim());
       if (next) return next.trim();
     }
   }
   return null;
+}
+
+export function transactionsYtdFrom(rows: string[][]): string | null {
+  return statValueFrom(rows, "transactions_ytd");
+}
+
+/** Whole dollars, like $90,696,373. A value that is not a number is returned as written. */
+export function formatCurrency(raw: string | null): string | null {
+  if (!raw) return null;
+  const cleaned = raw.replace(/[$,\s]/g, "").replace(/cad/gi, "");
+  if (!/^-?\d+(\.\d+)?$/.test(cleaned)) return raw.trim();
+  const value = Number(cleaned);
+  if (!Number.isFinite(value)) return raw.trim();
+  const digits = Number.isInteger(value) ? 0 : 2;
+  const formatted = new Intl.NumberFormat("en-CA", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  }).format(value);
+  return `$${formatted}`;
+}
+
+export type AwayAgent = {
+  agent: string;
+  start: string;
+  end: string;
+  range: string;
+};
+
+const RANGE_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+export function addCalendarDays(ymdValue: string, days: number): string {
+  const match = ymdValue.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return ymdValue;
+  const utc = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]) + days));
+  return ymd(utc.getUTCFullYear(), utc.getUTCMonth() + 1, utc.getUTCDate()) ?? ymdValue;
+}
+
+function prettyDate(value: string): string {
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return value;
+  const month = RANGE_MONTHS[Number(match[2]) - 1] ?? match[2];
+  return `${month} ${Number(match[3])}, ${match[1]}`;
+}
+
+export function formatDateRange(start: string, end: string): string {
+  if (start === end) return prettyDate(start);
+  const startParts = start.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const endParts = end.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!startParts || !endParts) return `${prettyDate(start)} – ${prettyDate(end)}`;
+  const startMonth = RANGE_MONTHS[Number(startParts[2]) - 1] ?? startParts[2];
+  const endMonth = RANGE_MONTHS[Number(endParts[2]) - 1] ?? endParts[2];
+  if (startParts[1] === endParts[1] && startParts[2] === endParts[2]) {
+    return `${startMonth} ${Number(startParts[3])}–${Number(endParts[3])}, ${startParts[1]}`;
+  }
+  if (startParts[1] === endParts[1]) {
+    return `${startMonth} ${Number(startParts[3])} – ${endMonth} ${Number(endParts[3])}, ${startParts[1]}`;
+  }
+  return `${prettyDate(start)} – ${prettyDate(end)}`;
+}
+
+/** Vacations that overlap today through the next `windowDays` days, Vancouver calendar. */
+export function awayAgentsFrom(
+  rows: string[][],
+  today = vancouverToday(),
+  windowDays = 14,
+): AwayAgent[] {
+  const windowEnd = addCalendarDays(today, windowDays);
+  const people = objectsFrom(rows, ["timestamp", "agent", "start_date", "end_date", "notes", "status"])
+    .map((row) => {
+      const agent = (row.agent ?? "").trim();
+      if (!agent) return null;
+      let start = parseSheetDate(row.start_date ?? "");
+      let end = parseSheetDate(row.end_date ?? "");
+      if (!start && end) start = end;
+      if (start && !end) end = start;
+      if (!start || !end) return null;
+      if (end < start) [start, end] = [end, start];
+      if (end < today || start > windowEnd) return null;
+      return { agent, start, end, range: formatDateRange(start, end) };
+    })
+    .filter((item): item is AwayAgent => Boolean(item));
+
+  return people.sort((a, b) => a.start.localeCompare(b.start) || a.agent.localeCompare(b.agent));
 }
 
 export function listingFilesFrom(rows: string[][]): ListingFile[] {

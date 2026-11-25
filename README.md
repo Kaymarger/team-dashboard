@@ -40,7 +40,7 @@ The backend bot fills every read-only tab. This app only reads them.
 | Tab | Columns | What the page shows |
 | --- | --- | --- |
 | `Important Dates` | `date`, `title`, `notes` | Compact list, upcoming dates first (including today, America/Vancouver), then undated, then past. |
-| `Stats` | a row whose cell is `transactions_ytd`, and the next cell on that row is the number. A `key` / `value` header row is fine. | Transactions YTD card for 2026. |
+| `Stats` | a row whose cell is `transactions_ytd` or `team_volume_ytd`, and the next cell on that row is the number. A `key` / `value` header row is fine. | Transactions YTD, and Team Volume YTD formatted as currency. |
 | `Listing Files` | `address`, `mls_url`, `strata_url`, `media_url` | Active listings. Current Listings, Feature Sheets, and the MLS Sheet, Strata Documents, and Listing Media dialogs use these addresses. A blank URL is hidden on the address row and shown as “Not available yet” in those dialogs. If this tab has no addresses, the page falls back to the featured-properties scrape. |
 | `Outstanding Notary` | `address`, `side`, `closing_date` | Shown inside Notary Info. Those addresses fill the Property dropdown, along with Other. |
 | `Pending Subjects` | `address`, `agent`, `subject_removal_date` | Property dropdown on Remove Subjects, along with Other. A listed row copies the agent and removal date. Other asks for the address, agent, and date. |
@@ -54,8 +54,11 @@ Each submitted row is the whole handoff.
 | Tab | Columns |
 | --- | --- |
 | `Request Pond Access` | `timestamp`, `agent`, `status` |
+| `Remove from Pond` | `timestamp`, `agent`, `status` |
 | `Request Buyer's Guide` | `timestamp`, `agent`, `copies` (1–5), `status` |
+| `Request Seller's Guide` | `timestamp`, `agent`, `copies` (1–5), `status` |
 | `Request Feature Sheets` | `timestamp`, `property`, `agent`, `copies` (1–15), `status` |
+| `Messages to Kayla` | `timestamp`, `agent`, `message`, `status` |
 | `Vacation Days` | `timestamp`, `agent`, `start_date`, `end_date`, `notes`, `status` |
 | `Submit Notary Info` | `timestamp`, `agent`, `property`, `side` (`Buyer` or `Seller`), `notary_info`, `notes`, `status` |
 | `Remove Subjects` | `timestamp`, `property`, `agent`, `subject_removal_date`, `notes`, `status` |
@@ -64,7 +67,9 @@ Each submitted row is the whole handoff.
 | `CINC Support Tickets` | `timestamp`, `agent`, `issue`, `screenshot_count`, `ticket_id`, `status` (`new`) |
 | `Ticket Screenshots` | `ticket_id`, `image_index` (1 for the first image), `filename`, `mime_type` (`image/jpeg`), `chunk_count`, then `chunk_1`, `chunk_2`, … one column per piece. One row per image. Each chunk is at most 45,000 characters of base64. To rebuild a photo, concatenate `chunk_1` through `chunk_{chunk_count}`, base64-decode that string, and save it as a `.jpg`. Ignore any later chunk columns on that row. |
 
-Open House Availability is only a link to the Google Form. It does not write a tab.
+Open House Availability is only a link to the Google Form. It does not write a tab. The Print Feature Sheets button still writes `Request Feature Sheets`.
+
+`Vacation Days` is also read back for the Out of Town card. A row is listed when its `start_date` and `end_date` overlap today or the next 14 days (America/Vancouver). Dates can be `YYYY-MM-DD`, a written month, `M/D/YYYY`, `D/M/YYYY` when the first number is over 12, or a Google Sheets serial number. The card shows the agent and that date range, soonest start first. If nobody overlaps that window, the card says no one is away.
 
 Current Listings and the Feature Sheets property dropdown use the `Listing Files` addresses, with capitalization normalized (directionals like W and SW stay uppercase). MLS Sheets, Strata Documents, and Listing Media open a list of those addresses and link to `mls_url`, `strata_url`, or `media_url`. They do not add a sheet row. The [featured properties page](https://archibaldrealestate.ca/featured-properties/) is scraped and cached for about an hour only as a fallback when `Listing Files` has no addresses, and to attach an MLS number when one matches. If that page cannot be read and the tab is empty, Feature Sheets becomes a free-text address. New Listing asks for a property address directly, because that home is not on the active list yet. Notary Info takes its property list from Outstanding Notary, and Remove Subjects takes its list from Pending Subjects. Both include Other for a typed address.
 

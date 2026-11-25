@@ -6,10 +6,10 @@ import { FolderOpen, History, Home, LineChart, LogOut, Search } from "lucide-rea
 import { logout } from "@/app/login/actions";
 import { ActionBoard } from "@/components/action-board";
 import { ListingsCard } from "@/components/listings-card";
-import { UpcomingDates } from "@/components/readouts";
+import { AwayList, UpcomingDates } from "@/components/readouts";
 import { brand } from "@/config/brand";
 import { quickLinks } from "@/config/links";
-import type { ImportantDate, OutstandingNotary, PendingSubject } from "@/lib/sheet-tables";
+import type { AwayAgent, ImportantDate, OutstandingNotary, PendingSubject } from "@/lib/sheet-tables";
 
 type ListingRow = {
   address: string;
@@ -31,7 +31,7 @@ function StatPanel({ label, value }: { label: string; value: string }) {
   return (
     <section className={`${panelClass} min-w-0 px-3 py-3 sm:px-4 sm:py-4`}>
       <p className="text-[0.62rem] font-medium leading-tight tracking-[0.08em] text-[#876c47] uppercase sm:text-[0.68rem] sm:tracking-[0.14em]">{label}</p>
-      <p className="mt-2 text-2xl font-semibold tracking-tight text-[#1f2326] sm:text-3xl">{value}</p>
+      <p className={`mt-2 font-semibold tracking-tight text-[#1f2326] tabular-nums ${value.length > 8 ? "text-lg sm:text-2xl" : "text-2xl sm:text-3xl"}`}>{value}</p>
       <span className="mt-3 block h-0.5 w-8 rounded-full bg-[#a8875a]" aria-hidden />
     </section>
   );
@@ -40,6 +40,8 @@ function StatPanel({ label, value }: { label: string; value: string }) {
 export function DashboardShell({
   dateLabel,
   ytd,
+  teamVolume,
+  away,
   dates,
   listings,
   listingsError,
@@ -49,6 +51,8 @@ export function DashboardShell({
 }: {
   dateLabel: string;
   ytd: string | null;
+  teamVolume: string | null;
+  away: AwayAgent[];
   dates: ImportantDate[];
   listings: ListingRow[];
   listingsError: string | null;
@@ -119,8 +123,9 @@ export function DashboardShell({
         </div>
 
         <div className="grid min-w-0 items-start gap-3 lg:grid-cols-[minmax(0,1fr)_18rem]">
-          <div className="grid min-w-0 grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
+          <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-2 xl:grid-cols-3">
             <StatPanel label="Transactions YTD" value={ytd ?? "—"} />
+            <StatPanel label="Team Volume YTD" value={teamVolume ?? "—"} />
             <StatPanel label="Active Listings" value={String(listings.length)} />
             <StatPanel label="Pending Subjects" value={String(pendingSubjects.length)} />
             <StatPanel label="Outstanding Notary" value={String(outstandingNotary.length)} />
@@ -132,6 +137,13 @@ export function DashboardShell({
             </div>
           </section>
         </div>
+
+        <section className={`${panelClass} min-w-0 p-4`}>
+          <h2 className="text-[0.68rem] font-medium tracking-[0.14em] text-[#876c47] uppercase">Out of Town</h2>
+          <div className="mt-3">
+            <AwayList people={away} />
+          </div>
+        </section>
 
         <ActionBoard
           query={query}

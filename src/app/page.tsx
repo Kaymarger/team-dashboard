@@ -42,6 +42,8 @@ export default async function HomePage() {
       <DashboardShell
         dateLabel={todayLabel()}
         ytd={data.transactionsYtd}
+        teamVolume={data.teamVolume}
+        away={data.away}
         dates={data.dates}
         listings={listings}
         listingsError={data.listingsError}

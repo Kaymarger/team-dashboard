@@ -1,5 +1,5 @@
-import { CalendarDays } from "lucide-react";
-import type { ImportantDate, OutstandingNotary } from "@/lib/sheet-tables";
+import { CalendarDays, Plane } from "lucide-react";
+import type { AwayAgent, ImportantDate, OutstandingNotary } from "@/lib/sheet-tables";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -41,6 +41,27 @@ export function UpcomingDates({ dates }: { dates: ImportantDate[] }) {
           </li>
         );
       })}
+    </ul>
+  );
+}
+
+export function AwayList({ people }: { people: AwayAgent[] }) {
+  if (!people.length) {
+    return (
+      <div className="flex items-start gap-3">
+        <Plane className="mt-0.5 size-4 shrink-0 text-[#a8875a]" aria-hidden />
+        <p className="text-sm text-[#716c65]">No one is away in the next two weeks.</p>
+      </div>
+    );
+  }
+  return (
+    <ul className="grid gap-3 sm:grid-cols-2">
+      {people.map((person) => (
+        <li key={`${person.agent}:${person.start}:${person.end}`} className="flex min-w-0 items-baseline justify-between gap-3">
+          <p className="min-w-0 truncate text-sm font-medium text-[#1c1c1c]">{person.agent}</p>
+          <p className="shrink-0 text-sm text-[#3a3a3a]">{person.range}</p>
+        </li>
+      ))}
     </ul>
   );
 }

@@ -11,6 +11,21 @@ export function previewDashboard(): DashboardData | null {
   return {
     sheetError: null,
     transactionsYtd: "85",
+    teamVolume: "$90,696,373",
+    away: [
+      {
+        agent: "Casey Archibald",
+        start: "2026-11-24",
+        end: "2026-11-28",
+        range: "Nov 24–28, 2026",
+      },
+      {
+        agent: "Cassie Kang",
+        start: "2026-12-01",
+        end: "2026-12-05",
+        range: "Dec 1–5, 2026",
+      },
+    ],
     listingsError: null,
     dates: [
       {

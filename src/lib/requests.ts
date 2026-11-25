@@ -123,11 +123,26 @@ export function buildRequest(form: string, fields: FieldBag, ctx: RequestContext
   switch (form) {
     case "pond":
       return base(tabs.pond, ["agent"], { agent: agentOf(fields) });
+    case "remove-pond":
+      return base(tabs.removePond, ["agent"], { agent: agentOf(fields) });
     case "buyers-guide":
       return base(tabs.buyersGuide, ["agent", "copies"], {
         agent: agentOf(fields),
         copies: copiesOf(fields, copyLimits.buyersGuide.min, copyLimits.buyersGuide.max),
       });
+    case "sellers-guide":
+      return base(tabs.sellersGuide, ["agent", "copies"], {
+        agent: agentOf(fields),
+        copies: copiesOf(fields, copyLimits.sellersGuide.min, copyLimits.sellersGuide.max),
+      });
+    case "message-kayla": {
+      const message = clip(one(fields, "message"), 4000);
+      if (!message) throw new RequestError("Enter a message.");
+      return base(tabs.messagesKayla, ["agent", "message"], {
+        agent: agentOf(fields),
+        message,
+      });
+    }
     case "feature-sheets":
       return base(tabs.featureSheets, ["property", "agent", "copies"], {
         property: propertyOf(fields, ctx),
