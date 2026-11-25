@@ -11,7 +11,7 @@ export function SubmitButton({ pending }: { pending: boolean }) {
       type="submit"
       disabled={pending}
       aria-busy={pending}
-      className="sticky bottom-0 z-10 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#1f2326] px-4 text-base font-semibold text-white shadow-[0_0_0_12px_#ffffff] transition hover:bg-[#33383c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a8875a] focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-60"
+      className="sticky bottom-0 z-10 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#1c1c1c] px-4 text-base font-semibold text-white shadow-[0_0_0_12px_#ffffff] transition hover:bg-[#2c2c2c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a8875a] focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-60"
     >
       {pending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
       {pending ? "Sending…" : "Submit"}

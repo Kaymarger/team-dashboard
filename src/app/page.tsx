@@ -3,6 +3,7 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { fileFor, loadDashboard } from "@/lib/dashboard";
 import { visibleListings } from "@/lib/parse-listings";
 import { previewDashboard } from "@/lib/preview-dashboard";
+import { vancouverToday } from "@/lib/sheet-tables";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,7 @@ export default async function HomePage() {
       ) : null}
       <DashboardShell
         dateLabel={todayLabel()}
+        today={vancouverToday()}
         ytd={data.transactionsYtd}
         teamVolume={data.teamVolume}
         away={data.away}

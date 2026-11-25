@@ -12,7 +12,7 @@ type ListingRow = {
 };
 
 const pillClass =
-  "inline-flex h-11 items-center justify-center rounded-full border border-[#1f2326] px-3 text-sm font-medium text-[#1f2326] transition hover:bg-[#1f2326] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a8875a]";
+  "inline-flex h-11 items-center justify-center rounded-full border border-[#1c1c1c] bg-white px-3 text-sm font-medium text-[#1c1c1c] transition duration-200 hover:bg-[#1c1c1c] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a8875a]";
 
 export function ListingsCard({
   listings,
@@ -54,7 +54,7 @@ export function ListingsCard({
           { label: "Listing Media", href: listing.mediaUrl },
         ].filter((item) => item.href.trim());
         return (
-          <li key={key} className="overflow-hidden rounded-xl border border-[#e5e2dc] bg-white">
+          <li key={key} className="overflow-hidden rounded-xl border border-[#e6e1d8] bg-[#f7f6f3]">
             <button
               id={buttonId}
               type="button"
@@ -63,7 +63,7 @@ export function ListingsCard({
               className="flex min-h-11 w-full items-center gap-2.5 px-3 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a8875a] focus-visible:ring-inset"
               onClick={() => setOpenKey(open ? null : key)}
             >
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#f1efea] text-[#1f2326]">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white text-[#1c1c1c]">
                 <Home className="size-4" strokeWidth={1.6} aria-hidden />
               </span>
               <span className="min-w-0 flex-1 text-sm leading-snug font-medium break-words text-[#1c1c1c]">{listing.address}</span>

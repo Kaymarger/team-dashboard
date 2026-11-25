@@ -3,6 +3,7 @@ import test from "node:test";
 import { addressesMatch, parseFeaturedHtml, titleCaseAddress, visibleListings } from "./parse-listings";
 import {
   awayAgentsFrom,
+  countdownLabel,
   formatCurrency,
   importantDatesFrom,
   parseSheetDate,
@@ -233,6 +234,45 @@ test("new listing requires building type only for PDS", () => {
   assert.equal(built.headers.at(-1), "status");
 });
 
+test("accepted offers and client gifts write their own tabs", () => {
+  const offer = buildRequest(
+    "accepted-offer",
+    { agent: "Casey Archibald", client_or_address: "Jordan Lee, 10 Oak St" },
+    ctx,
+  );
+  assert.equal(offer.tab, "Accepted Offers");
+  assert.deepEqual(offer.headers, ["timestamp", "agent", "client_or_address", "status"]);
+  assert.equal(offer.values.client_or_address, "Jordan Lee, 10 Oak St");
+  assert.equal(offer.values.status, "new");
+
+  const gift = buildRequest(
+    "client-gifts",
+    {
+      agent: "Cassie Kang",
+      client_name: "Jordan Lee",
+      address: "10 Oak St",
+      occasion: "Closing",
+      needed_by: "2026-12-12",
+      notes: "Wine",
+    },
+    ctx,
+  );
+  assert.equal(gift.tab, "Client Gifts");
+  assert.deepEqual(gift.headers, [
+    "timestamp",
+    "agent",
+    "client_name",
+    "address",
+    "occasion",
+    "needed_by",
+    "notes",
+    "status",
+  ]);
+  assert.equal(gift.values.occasion, "Closing");
+  assert.equal(gift.values.needed_by, "2026-12-12");
+  assert.equal(gift.values.status, "new");
+});
+
 test("new handoff forms write their own tabs", () => {
   const pond = buildRequest("remove-pond", { agent: "Cassie Kang" }, ctx);
   assert.equal(pond.tab, "Remove from Pond");
@@ -244,22 +284,19 @@ test("new handoff forms write their own tabs", () => {
   assert.deepEqual(guide.headers, ["timestamp", "agent", "copies", "status"]);
   assert.equal(guide.values.copies, "3");
 
-  const message = buildRequest(
-    "message-kayla",
-    { agent: "Ann-Marie Copping", message: "Please call the seller." },
-    ctx,
-  );
-  assert.equal(message.tab, "Messages to Kayla");
-  assert.deepEqual(message.headers, ["timestamp", "agent", "message", "status"]);
-  assert.equal(message.values.message, "Please call the seller.");
-  assert.equal(message.values.status, "new");
-
   const sheets = buildRequest(
     "feature-sheets",
     { property: "104 3621 W 26th Avenue, Vancouver", agent: "Cassie Kang", copies: "2" },
     ctx,
   );
   assert.equal(sheets.tab, "Request Feature Sheets");
+});
+
+test("countdown labels use the Vancouver calendar day", () => {
+  assert.equal(countdownLabel("2026-11-25", "2026-11-25"), "Today");
+  assert.equal(countdownLabel("2026-11-26", "2026-11-25"), "Tomorrow");
+  assert.equal(countdownLabel("2026-11-29", "2026-11-25"), "In 4 days");
+  assert.equal(countdownLabel("2026-11-24", "2026-11-25"), "Yesterday");
 });
 
 test("team volume is currency and read from team_volume_ytd", () => {

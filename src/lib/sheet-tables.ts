@@ -48,6 +48,27 @@ function objectsFrom(
     });
 }
 
+export function daysBetween(fromYmd: string, toYmd: string): number | null {
+  const from = fromYmd.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const to = toYmd.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!from || !to) return null;
+  const start = Date.UTC(Number(from[1]), Number(from[2]) - 1, Number(from[3]));
+  const end = Date.UTC(Number(to[1]), Number(to[2]) - 1, Number(to[3]));
+  return Math.round((end - start) / 86400000);
+}
+
+/** Short label such as Today, Tomorrow, or In 4 days. Past dates count backward. */
+export function countdownLabel(target: string | null, today: string): string | null {
+  if (!target) return null;
+  const days = daysBetween(today, target);
+  if (days === null) return null;
+  if (days === 0) return "Today";
+  if (days === 1) return "Tomorrow";
+  if (days > 1) return `In ${days} days`;
+  if (days === -1) return "Yesterday";
+  return `${Math.abs(days)} days ago`;
+}
+
 export function vancouverToday(now = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Vancouver",

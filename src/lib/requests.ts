@@ -4,6 +4,7 @@ import {
   commissionOptions,
   copyLimits,
   disclosureOptions,
+  giftOccasions,
   leadSources,
   listTerms,
   newListingColumns,
@@ -121,6 +122,28 @@ function base(tab: string, columns: string[], values: Record<string, string>): B
 
 export function buildRequest(form: string, fields: FieldBag, ctx: RequestContext): BuiltRequest {
   switch (form) {
+    case "accepted-offer": {
+      const client = clip(one(fields, "client_or_address"), 300);
+      if (!client) throw new RequestError("Enter the client name or property address.");
+      return base(tabs.acceptedOffers, ["agent", "client_or_address"], {
+        agent: agentOf(fields),
+        client_or_address: client,
+      });
+    }
+    case "client-gifts": {
+      const client = clip(one(fields, "client_name"), 300);
+      if (!client) throw new RequestError("Enter the client name.");
+      const address = clip(one(fields, "address"), 300);
+      if (!address) throw new RequestError("Enter the property address.");
+      return base(tabs.clientGifts, ["agent", "client_name", "address", "occasion", "needed_by", "notes"], {
+        agent: agentOf(fields),
+        client_name: client,
+        address,
+        occasion: choice(one(fields, "occasion"), giftOccasions, "an occasion"),
+        needed_by: isoDate(one(fields, "needed_by"), "the needed-by date", true),
+        notes: clip(one(fields, "notes"), 4000),
+      });
+    }
     case "pond":
       return base(tabs.pond, ["agent"], { agent: agentOf(fields) });
     case "remove-pond":
@@ -135,14 +158,6 @@ export function buildRequest(form: string, fields: FieldBag, ctx: RequestContext
         agent: agentOf(fields),
         copies: copiesOf(fields, copyLimits.sellersGuide.min, copyLimits.sellersGuide.max),
       });
-    case "message-kayla": {
-      const message = clip(one(fields, "message"), 4000);
-      if (!message) throw new RequestError("Enter a message.");
-      return base(tabs.messagesKayla, ["agent", "message"], {
-        agent: agentOf(fields),
-        message,
-      });
-    }
     case "feature-sheets":
       return base(tabs.featureSheets, ["property", "agent", "copies"], {
         property: propertyOf(fields, ctx),

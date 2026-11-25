@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useState } from "react";
 import {
+  BadgeCheck,
   BookMarked,
   BookOpen,
   Building2,
@@ -11,10 +12,10 @@ import {
   ClipboardX,
   FileSpreadsheet,
   Files,
+  Gift,
   Home,
   KeyRound,
   LifeBuoy,
-  Mail,
   MessageSquareText,
   Scale,
   UserMinus,
@@ -39,9 +40,12 @@ type Tile = {
   description: string;
   icon: LucideIcon;
   href?: string;
+  featured?: boolean;
 };
 
 const tiles: Tile[] = [
+  { id: "accepted-offer", label: "Accepted Offer", description: "Record a client or property that was just accepted.", icon: BadgeCheck, featured: true },
+  { id: "client-gifts", label: "Client Gifts to Be Prepped", description: "Ask the team to prepare a client gift.", icon: Gift },
   { id: "pond", label: "Request Pond Access", description: "Ask to be added to the pond.", icon: KeyRound },
   { id: "remove-pond", label: "Remove from Pond", description: "Ask to be removed from the pond.", icon: UserMinus },
   { id: "open-house", label: "Open House Availability", description: "Open the shared availability form.", icon: DoorOpen, href: openHouseLink.href },
@@ -56,12 +60,14 @@ const tiles: Tile[] = [
   { id: "remove-subjects", label: "Remove Subjects", description: "Record a subject removal.", icon: ClipboardX },
   { id: "vacation", label: "Submit Vacation Days", description: "Let the team know you'll be away.", icon: CalendarRange },
   { id: "meeting-topic", label: "Team Meeting Topic", description: "Suggest something for the next meeting.", icon: MessageSquareText },
-  { id: "message-kayla", label: "Msg Kayla", description: "Send Kayla a note.", icon: Mail },
   { id: "cinc-ticket", label: "Send CINC Support Ticket", description: "Tell us what isn't working in CINC.", icon: LifeBuoy },
 ];
 
 const tileClass =
-  "group flex min-h-11 min-w-0 items-center gap-2 rounded-lg border border-[#e5e2dc] bg-white px-2.5 py-2 text-left shadow-[0_1px_2px_rgba(28,28,28,0.04)] transition hover:border-[#1f2326] hover:bg-[#f1efea] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a8875a] sm:h-12 sm:py-0";
+  "group flex min-h-12 min-w-0 items-center gap-2.5 rounded-xl border border-[#e6e1d8] bg-white px-3 py-2 text-left shadow-[0_1px_2px_rgba(28,28,28,0.04)] transition duration-200 hover:-translate-y-px hover:border-[#d9d0c4] hover:shadow-[0_10px_24px_rgba(28,28,28,0.06)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a8875a]";
+
+const featuredClass =
+  "col-span-2 border-[#c4ad8a] bg-[#fbf8f3] sm:col-span-2";
 
 function fileHref(listing: LinkedListing, id: string): string {
   if (id === "mls") return listing.mlsUrl;
@@ -130,6 +136,7 @@ export function ActionBoard({
     (tile) => !q || `${tile.label} ${tile.description}`.toLowerCase().includes(q),
   );
   const openTile = tiles.find((tile) => tile.id === openId && !tile.href) ?? null;
+  const OpenIcon = openTile?.icon;
 
   useEffect(() => {
     if (!openTile) return;
@@ -151,13 +158,15 @@ export function ActionBoard({
         {visibleTiles.length === 0 ? (
           <p className="text-sm text-[#716c65]">No actions match that search.</p>
         ) : (
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {visibleTiles.map((tile) => {
               const Icon = tile.icon;
               const inner = (
                 <>
-                  <Icon className="size-4 shrink-0 text-[#1f2326]" strokeWidth={1.7} aria-hidden />
-                  <span className="min-w-0 text-[0.8125rem] leading-snug font-medium break-words text-[#1c1c1c] sm:truncate sm:text-xs">{tile.label}</span>
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#f6f3ee] text-[#1c1c1c] transition duration-200 group-hover:bg-[#f3ece3] group-hover:text-[#876c47]">
+                    <Icon className="size-4" strokeWidth={1.7} aria-hidden />
+                  </span>
+                  <span className="min-w-0 text-[0.8125rem] leading-snug font-medium break-words text-[#1c1c1c]">{tile.label}</span>
                 </>
               );
               if (tile.href) {
@@ -168,7 +177,7 @@ export function ActionBoard({
                     target="_blank"
                     rel="noopener noreferrer"
                     title={tile.description}
-                    className={tileClass}
+                    className={`${tileClass} ${tile.featured ? featuredClass : ""}`}
                   >
                     {inner}
                   </a>
@@ -179,7 +188,7 @@ export function ActionBoard({
                   key={tile.id}
                   type="button"
                   title={tile.description}
-                  className={tileClass}
+                  className={`${tileClass} ${tile.featured ? featuredClass : ""}`}
                   onClick={() => setOpenId(tile.id)}
                 >
                   {inner}
@@ -191,25 +200,30 @@ export function ActionBoard({
       </section>
 
       {openTile ? (
-        <div className="fixed inset-0 z-50 flex bg-black/55 sm:justify-end" onClick={() => setOpenId(null)}>
+        <div className="fixed inset-0 z-50 flex bg-[#1c1c1c]/40 backdrop-blur-[2px] sm:items-center sm:justify-end sm:p-3" onClick={() => setOpenId(null)}>
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
-            className="flex h-dvh w-full max-w-full flex-col bg-white pt-[env(safe-area-inset-top)] shadow-[0_24px_80px_rgba(28,28,28,0.12)] sm:ml-auto sm:h-full sm:max-w-xl"
+            className="flex h-dvh w-full max-w-full flex-col bg-white pt-[env(safe-area-inset-top)] shadow-[0_24px_80px_rgba(28,28,28,0.16)] sm:h-[calc(100dvh-1.5rem)] sm:max-w-xl sm:rounded-2xl sm:border sm:border-[#e6e1d8] sm:pt-0"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex shrink-0 items-start justify-between gap-4 border-b border-[#e5e2dc] px-4 py-4 sm:px-6 sm:py-5">
-              <div className="min-w-0">
-                <h2 id={titleId} className="text-xl font-light tracking-tight text-[#1c1c1c] sm:text-2xl">
-                  {openTile.label}
-                </h2>
-                <p className="mt-1 text-sm text-[#716c65]">{openTile.description}</p>
+            <div className="flex shrink-0 items-start justify-between gap-4 border-b border-[#e6e1d8] px-4 py-4 sm:px-6 sm:py-5">
+              <div className="flex min-w-0 items-start gap-3">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#f6f3ee] text-[#1c1c1c]">
+                  {OpenIcon ? <OpenIcon className="size-5" strokeWidth={1.7} aria-hidden /> : null}
+                </span>
+                <div className="min-w-0">
+                  <h2 id={titleId} className="text-lg font-semibold tracking-tight text-[#1c1c1c] sm:text-xl">
+                    {openTile.label}
+                  </h2>
+                  <p className="mt-0.5 text-sm text-[#716c65]">{openTile.description}</p>
+                </div>
               </div>
               <button
                 type="button"
                 autoFocus
-                className="flex size-11 shrink-0 items-center justify-center rounded-full text-[#3a3a3a] hover:bg-[#f1efea] hover:text-[#1c1c1c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a8875a]"
+                className="flex size-11 shrink-0 items-center justify-center rounded-full text-[#3f3f3f] transition hover:bg-[#f6f3ee] hover:text-[#1c1c1c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a8875a]"
                 onClick={() => setOpenId(null)}
                 aria-label="Close"
               >

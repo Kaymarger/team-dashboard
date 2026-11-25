@@ -1,12 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Image from "next/image";
-import { FolderOpen, History, Home, LineChart, LogOut, Search } from "lucide-react";
+import {
+  CalendarDays,
+  ClipboardList,
+  DollarSign,
+  FolderOpen,
+  History,
+  Home,
+  LineChart,
+  LogOut,
+  Plane,
+  Scale,
+  Search,
+  TrendingUp,
+  type LucideIcon,
+} from "lucide-react";
 import { logout } from "@/app/login/actions";
 import { ActionBoard } from "@/components/action-board";
 import { ListingsCard } from "@/components/listings-card";
-import { AwayList, UpcomingDates } from "@/components/readouts";
+import { AwayList, NotaryList, PendingList, UpcomingDates } from "@/components/readouts";
 import { brand } from "@/config/brand";
 import { quickLinks } from "@/config/links";
 import type { AwayAgent, ImportantDate, OutstandingNotary, PendingSubject } from "@/lib/sheet-tables";
@@ -21,24 +35,81 @@ type ListingRow = {
 
 const linkIcons = [FolderOpen, LineChart, Home, History];
 
-const panelClass =
-  "rounded-xl border border-[#e5e2dc] bg-white shadow-[0_1px_2px_rgba(28,28,28,0.04),0_8px_24px_rgba(28,28,28,0.04)]";
+const cardClass =
+  "rounded-2xl border border-[#e6e1d8] bg-white shadow-[0_1px_2px_rgba(28,28,28,0.04),0_12px_32px_rgba(28,28,28,0.05)]";
 
 const searchClass =
-  "w-full rounded-lg border border-[#d9d5cd] bg-white pr-3 pl-9 text-base text-[#1c1c1c] outline-none placeholder:text-[#716c65] focus-visible:border-[#a8875a] focus-visible:ring-2 focus-visible:ring-[#a8875a]/40";
+  "h-11 w-full rounded-full border border-[#e6e1d8] bg-[#f7f6f3] pr-4 pl-10 text-base text-[#1c1c1c] outline-none transition placeholder:text-[#716c65] focus-visible:border-[#a8875a] focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-[#a8875a]/40 sm:text-sm";
 
-function StatPanel({ label, value }: { label: string; value: string }) {
+function SectionCard({
+  icon: Icon,
+  title,
+  count,
+  children,
+}: {
+  icon: LucideIcon;
+  title: string;
+  count?: number;
+  children: ReactNode;
+}) {
   return (
-    <section className={`${panelClass} min-w-0 px-3 py-3 sm:px-4 sm:py-4`}>
-      <p className="text-[0.62rem] font-medium leading-tight tracking-[0.08em] text-[#876c47] uppercase sm:text-[0.68rem] sm:tracking-[0.14em]">{label}</p>
-      <p className={`mt-2 font-semibold tracking-tight text-[#1f2326] tabular-nums ${value.length > 8 ? "text-lg sm:text-2xl" : "text-2xl sm:text-3xl"}`}>{value}</p>
-      <span className="mt-3 block h-0.5 w-8 rounded-full bg-[#a8875a]" aria-hidden />
+    <section className={`${cardClass} min-w-0 p-4 sm:p-5`}>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <span className="flex size-8 items-center justify-center rounded-lg bg-[#f6f3ee] text-[#876c47]">
+            <Icon className="size-4" aria-hidden />
+          </span>
+          <h2 className="text-sm font-semibold tracking-tight text-[#1c1c1c]">{title}</h2>
+        </div>
+        {typeof count === "number" ? (
+          <span className="text-xs font-medium text-[#716c65]">{count}</span>
+        ) : null}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function HeroStat({
+  label,
+  value,
+  icon: Icon,
+}: {
+  label: string;
+  value: string;
+  icon: LucideIcon;
+}) {
+  return (
+    <section className={`${cardClass} relative min-w-0 overflow-hidden p-5 sm:p-6`}>
+      <span className="absolute top-0 left-0 h-full w-1 bg-[#a8875a]" aria-hidden />
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-[0.68rem] font-semibold tracking-[0.16em] text-[#876c47] uppercase">{label}</p>
+          <p className="mt-3 text-3xl font-semibold tracking-tight text-[#1c1c1c] tabular-nums sm:text-4xl">{value}</p>
+        </div>
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#f3ece3] text-[#876c47]">
+          <Icon className="size-5" aria-hidden />
+        </span>
+      </div>
+    </section>
+  );
+}
+
+function MiniStat({ label, value, icon: Icon }: { label: string; value: string; icon: LucideIcon }) {
+  return (
+    <section className={`${cardClass} min-w-0 p-3.5 sm:p-4`}>
+      <span className="flex size-8 items-center justify-center rounded-lg bg-[#f6f3ee] text-[#1c1c1c]">
+        <Icon className="size-4" aria-hidden />
+      </span>
+      <p className="mt-3 text-2xl font-semibold tracking-tight text-[#1c1c1c] tabular-nums">{value}</p>
+      <p className="mt-1 text-[0.68rem] leading-tight font-medium text-[#716c65]">{label}</p>
     </section>
   );
 }
 
 export function DashboardShell({
   dateLabel,
+  today,
   ytd,
   teamVolume,
   away,
@@ -50,6 +121,7 @@ export function DashboardShell({
   outstandingNotary,
 }: {
   dateLabel: string;
+  today: string;
   ytd: string | null;
   teamVolume: string | null;
   away: AwayAgent[];
@@ -65,103 +137,119 @@ export function DashboardShell({
   const shownListings = q
     ? listings.filter((listing) => `${listing.address} ${listing.mls}`.toLowerCase().includes(q))
     : listings;
+  const upcomingCount = dates.filter((item) => item.when !== "past").length;
 
   return (
     <div className="overflow-x-clip">
-      <header className="border-b border-[#e5e2dc] bg-white">
-        <div className="mx-auto w-full min-w-0 max-w-[1200px] pt-[max(1rem,env(safe-area-inset-top))] pr-[max(1rem,env(safe-area-inset-right))] pb-4 pl-[max(1rem,env(safe-area-inset-left))] sm:px-6 sm:pt-6 sm:pb-4">
-          <div className="flex items-center gap-2">
-            <div className="flex min-w-0 flex-1 items-center gap-2.5">
+      <header className="sticky top-0 z-30 border-b border-[#e6e1d8]/90 bg-white/85 backdrop-blur-md">
+        <div className="mx-auto w-full min-w-0 max-w-[1200px] pt-[env(safe-area-inset-top)] pr-[max(1rem,env(safe-area-inset-right))] pl-[max(1rem,env(safe-area-inset-left))] sm:px-6">
+          <div className="flex items-center gap-3 py-3">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
               <Image
                 src={brand.logo}
                 alt=""
-                width={28}
-                height={28}
-                className="h-7 w-7 shrink-0 rounded-md border border-[#e5e2dc] bg-white object-contain p-0.5"
+                width={36}
+                height={36}
+                className="h-9 w-9 shrink-0 rounded-xl border border-[#e6e1d8] bg-white object-contain p-1"
               />
-              <p className="truncate text-sm text-[#1c1c1c]">
-                {brand.group} · Team Dashboard
-              </p>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold tracking-tight text-[#1c1c1c]">{brand.group}</p>
+                <p className="truncate text-xs text-[#716c65]">Team Dashboard</p>
+              </div>
             </div>
-            <label className="relative hidden w-56 shrink-0 sm:block">
+            <label className="relative hidden w-64 shrink-0 md:block">
               <span className="sr-only">Search</span>
-              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#716c65]" aria-hidden />
+              <Search className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-[#716c65]" aria-hidden />
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search"
-                className={`h-10 ${searchClass} sm:text-sm`}
+                placeholder="Search listings and actions"
+                className={searchClass}
               />
             </label>
             <form action={logout} className="shrink-0">
               <button
                 type="submit"
-                className="inline-flex h-11 items-center gap-1.5 rounded-lg px-2 text-sm text-[#3a3a3a] hover:text-[#1c1c1c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a8875a]"
+                className="inline-flex h-10 items-center gap-1.5 rounded-full border border-[#e6e1d8] bg-white px-3 text-sm font-medium text-[#3f3f3f] transition hover:border-[#1c1c1c] hover:text-[#1c1c1c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a8875a]"
               >
                 <LogOut className="size-4" aria-hidden />
                 Sign out
               </button>
             </form>
           </div>
-          <label className="relative mt-3 block sm:hidden">
+          <label className="relative block pb-3 md:hidden">
             <span className="sr-only">Search</span>
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#716c65]" aria-hidden />
+            <Search className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-[#716c65]" aria-hidden />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search"
-              className={`h-11 ${searchClass}`}
+              className={searchClass}
             />
           </label>
         </div>
       </header>
-      <div className="mx-auto flex w-full min-w-0 max-w-[1200px] flex-col gap-6 pt-6 pr-[max(1rem,env(safe-area-inset-right))] pb-[max(1rem,env(safe-area-inset-bottom))] pl-[max(1rem,env(safe-area-inset-left))] sm:px-6 sm:pt-6 sm:pb-6">
 
-        <div id="overview">
-          <h1 className="text-2xl font-semibold tracking-tight text-[#1c1c1c]">Team Overview</h1>
-          <p className="mt-1 text-sm text-[#716c65]">{dateLabel}</p>
+      <div className="mx-auto flex w-full min-w-0 max-w-[1200px] flex-col gap-8 pt-6 pr-[max(1rem,env(safe-area-inset-right))] pb-[max(1.5rem,env(safe-area-inset-bottom))] pl-[max(1rem,env(safe-area-inset-left))] sm:px-6 sm:pt-8 sm:pb-10">
+        <div id="overview" className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-[#1c1c1c] sm:text-3xl">Team Overview</h1>
+            <p className="mt-1 text-sm text-[#716c65]">{dateLabel}</p>
+          </div>
         </div>
 
-        <div className="grid min-w-0 items-start gap-3 lg:grid-cols-[minmax(0,1fr)_18rem]">
-          <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-2 xl:grid-cols-3">
-            <StatPanel label="Transactions YTD" value={ytd ?? "—"} />
-            <StatPanel label="Team Volume YTD" value={teamVolume ?? "—"} />
-            <StatPanel label="Active Listings" value={String(listings.length)} />
-            <StatPanel label="Pending Subjects" value={String(pendingSubjects.length)} />
-            <StatPanel label="Outstanding Notary" value={String(outstandingNotary.length)} />
-          </div>
-          <section className={`${panelClass} min-w-0 p-4`}>
-            <p className="text-[0.68rem] font-medium tracking-[0.14em] text-[#876c47] uppercase">Important Dates</p>
-            <div className="mt-3">
-              <UpcomingDates dates={dates} />
+        <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
+          <HeroStat label="Transactions YTD" value={ytd ?? "—"} icon={TrendingUp} />
+          <HeroStat label="Team Volume YTD" value={teamVolume ?? "—"} icon={DollarSign} />
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          <MiniStat label="Active listings" value={String(listings.length)} icon={Home} />
+          <MiniStat label="Pending subjects" value={String(pendingSubjects.length)} icon={ClipboardList} />
+          <MiniStat label="Outstanding notary" value={String(outstandingNotary.length)} icon={Scale} />
+        </div>
+
+        <div className="grid items-start gap-4 lg:grid-cols-2">
+          <SectionCard icon={CalendarDays} title="Important Dates" count={upcomingCount}>
+            <UpcomingDates dates={dates} today={today} />
+          </SectionCard>
+          <SectionCard icon={Plane} title="Out of Town" count={away.length}>
+            <AwayList people={away} today={today} />
+          </SectionCard>
+          <SectionCard icon={ClipboardList} title="Pending Subjects" count={pendingSubjects.length}>
+            <PendingList rows={pendingSubjects} today={today} />
+          </SectionCard>
+          <SectionCard icon={Scale} title="Outstanding Notary" count={outstandingNotary.length}>
+            <NotaryList rows={outstandingNotary} today={today} />
+          </SectionCard>
+        </div>
+
+        <section className="min-w-0">
+          <h2 className="mb-3 text-sm font-semibold tracking-tight text-[#1c1c1c]">Actions</h2>
+          <ActionBoard
+            query={query}
+            listings={shownListings}
+            listingsFailed={listingsFailed}
+            pendingSubjects={pendingSubjects}
+            outstandingNotary={outstandingNotary}
+          />
+        </section>
+
+        <section id="current-listings" className={`${cardClass} min-w-0 scroll-mt-24 p-4 sm:p-5`}>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <span className="flex size-8 items-center justify-center rounded-lg bg-[#f6f3ee] text-[#876c47]">
+                <Home className="size-4" aria-hidden />
+              </span>
+              <h2 className="text-sm font-semibold tracking-tight text-[#1c1c1c]">Current Listings</h2>
             </div>
-          </section>
-        </div>
-
-        <section className={`${panelClass} min-w-0 p-4`}>
-          <h2 className="text-[0.68rem] font-medium tracking-[0.14em] text-[#876c47] uppercase">Out of Town</h2>
-          <div className="mt-3">
-            <AwayList people={away} />
+            <span className="text-xs font-medium text-[#716c65]">{shownListings.length}</span>
           </div>
+          <ListingsCard listings={shownListings} error={listingsFailed ? listingsError : null} />
         </section>
 
-        <ActionBoard
-          query={query}
-          listings={shownListings}
-          listingsFailed={listingsFailed}
-          pendingSubjects={pendingSubjects}
-          outstandingNotary={outstandingNotary}
-        />
-
-        <section id="current-listings" className={`${panelClass} min-w-0 scroll-mt-24 p-4`}>
-          <h2 className="text-[0.68rem] font-medium tracking-[0.14em] text-[#876c47] uppercase">Current Listings</h2>
-          <div className="mt-4">
-            <ListingsCard listings={shownListings} error={listingsFailed ? listingsError : null} />
-          </div>
-        </section>
-
-        <section className={`${panelClass} min-w-0 p-4`}>
-          <h2 className="text-[0.68rem] font-medium tracking-[0.14em] text-[#876c47] uppercase">Quick Links</h2>
+        <section className={`${cardClass} min-w-0 p-4 sm:p-5`}>
+          <h2 className="text-sm font-semibold tracking-tight text-[#1c1c1c]">Quick Links</h2>
           <div className="mt-4 flex w-full min-w-0 gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
             {quickLinks.map((link, index) => {
               const Icon = linkIcons[index] ?? FolderOpen;
@@ -171,7 +259,7 @@ export function DashboardShell({
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full border border-[#e5e2dc] bg-white px-4 text-sm text-[#1c1c1c] transition hover:border-[#1f2326] hover:bg-[#f1efea] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a8875a]"
+                  className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full border border-[#e6e1d8] bg-[#f7f6f3] px-4 text-sm font-medium text-[#1c1c1c] transition hover:border-[#1c1c1c] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a8875a]"
                 >
                   <Icon className="size-4" aria-hidden />
                   {link.label}

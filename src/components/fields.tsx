@@ -5,7 +5,7 @@ import { agents } from "@/config/agents";
 import { cn } from "@/lib/utils";
 
 export const controlClass =
-  "h-12 w-full min-w-0 max-w-full rounded-xl border border-[#d9d5cd] bg-white px-3 text-base text-[#1c1c1c] outline-none transition [color-scheme:light] placeholder:text-[#716c65] focus-visible:border-[#a8875a] focus-visible:ring-2 focus-visible:ring-[#a8875a]/45";
+  "h-12 w-full min-w-0 max-w-full rounded-xl border border-[#e6e1d8] bg-[#f7f6f3] px-3 text-base text-[#1c1c1c] outline-none transition duration-200 [color-scheme:light] placeholder:text-[#716c65] focus-visible:border-[#a8875a] focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-[#a8875a]/45";
 
 export function Field({
   label,

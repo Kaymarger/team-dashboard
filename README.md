@@ -53,12 +53,13 @@ Each submitted row is the whole handoff.
 
 | Tab | Columns |
 | --- | --- |
+| `Accepted Offers` | `timestamp`, `agent`, `client_or_address`, `status` |
+| `Client Gifts` | `timestamp`, `agent`, `client_name`, `address`, `occasion` (`Closing`, `Birthday`, `Anniversary`, or `Other`), `needed_by`, `notes`, `status` |
 | `Request Pond Access` | `timestamp`, `agent`, `status` |
 | `Remove from Pond` | `timestamp`, `agent`, `status` |
 | `Request Buyer's Guide` | `timestamp`, `agent`, `copies` (1–5), `status` |
 | `Request Seller's Guide` | `timestamp`, `agent`, `copies` (1–5), `status` |
 | `Request Feature Sheets` | `timestamp`, `property`, `agent`, `copies` (1–15), `status` |
-| `Messages to Kayla` | `timestamp`, `agent`, `message`, `status` |
 | `Vacation Days` | `timestamp`, `agent`, `start_date`, `end_date`, `notes`, `status` |
 | `Submit Notary Info` | `timestamp`, `agent`, `property`, `side` (`Buyer` or `Seller`), `notary_info`, `notes`, `status` |
 | `Remove Subjects` | `timestamp`, `property`, `agent`, `subject_removal_date`, `notes`, `status` |
