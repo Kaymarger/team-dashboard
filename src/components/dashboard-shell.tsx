@@ -95,18 +95,6 @@ function HeroStat({
   );
 }
 
-function MiniStat({ label, value, icon: Icon }: { label: string; value: string; icon: LucideIcon }) {
-  return (
-    <section className={`${cardClass} min-w-0 p-3.5 sm:p-4`}>
-      <span className="flex size-8 items-center justify-center rounded-lg bg-[#f6f3ee] text-[#1c1c1c]">
-        <Icon className="size-4" aria-hidden />
-      </span>
-      <p className="mt-3 text-2xl font-semibold tracking-tight text-[#1c1c1c] tabular-nums">{value}</p>
-      <p className="mt-1 text-[0.68rem] leading-tight font-medium text-[#716c65]">{label}</p>
-    </section>
-  );
-}
-
 export function DashboardShell({
   dateLabel,
   today,
@@ -201,12 +189,6 @@ export function DashboardShell({
         <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
           <HeroStat label="Transactions YTD" value={ytd ?? "—"} icon={TrendingUp} />
           <HeroStat label="Team Volume YTD" value={teamVolume ?? "—"} icon={DollarSign} />
-        </div>
-
-        <div className="grid grid-cols-3 gap-3">
-          <MiniStat label="Active listings" value={String(listings.length)} icon={Home} />
-          <MiniStat label="Pending subjects" value={String(pendingSubjects.length)} icon={ClipboardList} />
-          <MiniStat label="Outstanding notary" value={String(outstandingNotary.length)} icon={Scale} />
         </div>
 
         <div className="grid items-start gap-4 lg:grid-cols-2">

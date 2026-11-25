@@ -54,7 +54,6 @@ Each submitted row is the whole handoff.
 | Tab | Columns |
 | --- | --- |
 | `Accepted Offers` | `timestamp`, `agent`, `client_or_address`, `status` |
-| `Client Gifts` | `timestamp`, `agent`, `client_name`, `address`, `occasion` (`Closing`, `Birthday`, `Anniversary`, or `Other`), `needed_by`, `notes`, `status` |
 | `Request Pond Access` | `timestamp`, `agent`, `status` |
 | `Remove from Pond` | `timestamp`, `agent`, `status` |
 | `Request Buyer's Guide` | `timestamp`, `agent`, `copies` (1–5), `status` |

@@ -7,7 +7,6 @@ export const tabs = {
   pendingSubjects: "Pending Subjects",
   newListings: "New Listings",
   acceptedOffers: "Accepted Offers",
-  clientGifts: "Client Gifts",
   pond: "Request Pond Access",
   removePond: "Remove from Pond",
   buyersGuide: "Request Buyer's Guide",

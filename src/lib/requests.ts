@@ -4,7 +4,6 @@ import {
   commissionOptions,
   copyLimits,
   disclosureOptions,
-  giftOccasions,
   leadSources,
   listTerms,
   newListingColumns,
@@ -128,20 +127,6 @@ export function buildRequest(form: string, fields: FieldBag, ctx: RequestContext
       return base(tabs.acceptedOffers, ["agent", "client_or_address"], {
         agent: agentOf(fields),
         client_or_address: client,
-      });
-    }
-    case "client-gifts": {
-      const client = clip(one(fields, "client_name"), 300);
-      if (!client) throw new RequestError("Enter the client name.");
-      const address = clip(one(fields, "address"), 300);
-      if (!address) throw new RequestError("Enter the property address.");
-      return base(tabs.clientGifts, ["agent", "client_name", "address", "occasion", "needed_by", "notes"], {
-        agent: agentOf(fields),
-        client_name: client,
-        address,
-        occasion: choice(one(fields, "occasion"), giftOccasions, "an occasion"),
-        needed_by: isoDate(one(fields, "needed_by"), "the needed-by date", true),
-        notes: clip(one(fields, "notes"), 4000),
       });
     }
     case "pond":

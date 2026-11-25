@@ -8,7 +8,6 @@ import {
   buildingTypes,
   commissionOptions,
   copyLimits,
-  giftOccasions,
   disclosureOptions,
   leadSources,
   listTerms,
@@ -459,28 +458,6 @@ export function RequestFormPanel({
             placeholder="Client name or street address"
             className={controlClass}
           />
-        </Field>
-      </FormCard>
-    );
-  }
-  if (formId === "client-gifts") {
-    return (
-      <FormCard title="Client Gifts to Be Prepped" form="client-gifts">
-        <AgentField />
-        <Field label="Client Name">
-          <input name="client_name" required placeholder="Client name" className={controlClass} />
-        </Field>
-        <Field label="Property Address">
-          <input name="address" required placeholder="Street address" className={controlClass} />
-        </Field>
-        <Field label="Occasion">
-          <SegmentedChoices name="occasion" options={giftOccasions} required />
-        </Field>
-        <Field label="Needed By">
-          <input name="needed_by" type="date" required className={controlClass} />
-        </Field>
-        <Field label="Notes">
-          <textarea name="notes" rows={3} placeholder="Optional" className={`${controlClass} h-auto py-2`} />
         </Field>
       </FormCard>
     );

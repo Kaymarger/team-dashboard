@@ -67,8 +67,6 @@ export const leadSources: LeadSource[] = [
   { value: "Other" },
 ];
 
-export const giftOccasions = ["Closing", "Birthday", "Anniversary", "Other"] as const;
-
 export const copyLimits = {
   buyersGuide: { min: 1, max: 5 },
   sellersGuide: { min: 1, max: 5 },

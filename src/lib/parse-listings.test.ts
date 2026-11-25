@@ -234,7 +234,7 @@ test("new listing requires building type only for PDS", () => {
   assert.equal(built.headers.at(-1), "status");
 });
 
-test("accepted offers and client gifts write their own tabs", () => {
+test("accepted offers write their own tab", () => {
   const offer = buildRequest(
     "accepted-offer",
     { agent: "Casey Archibald", client_or_address: "Jordan Lee, 10 Oak St" },
@@ -244,33 +244,6 @@ test("accepted offers and client gifts write their own tabs", () => {
   assert.deepEqual(offer.headers, ["timestamp", "agent", "client_or_address", "status"]);
   assert.equal(offer.values.client_or_address, "Jordan Lee, 10 Oak St");
   assert.equal(offer.values.status, "new");
-
-  const gift = buildRequest(
-    "client-gifts",
-    {
-      agent: "Cassie Kang",
-      client_name: "Jordan Lee",
-      address: "10 Oak St",
-      occasion: "Closing",
-      needed_by: "2026-12-12",
-      notes: "Wine",
-    },
-    ctx,
-  );
-  assert.equal(gift.tab, "Client Gifts");
-  assert.deepEqual(gift.headers, [
-    "timestamp",
-    "agent",
-    "client_name",
-    "address",
-    "occasion",
-    "needed_by",
-    "notes",
-    "status",
-  ]);
-  assert.equal(gift.values.occasion, "Closing");
-  assert.equal(gift.values.needed_by, "2026-12-12");
-  assert.equal(gift.values.status, "new");
 });
 
 test("new handoff forms write their own tabs", () => {

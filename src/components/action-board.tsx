@@ -12,7 +12,6 @@ import {
   ClipboardX,
   FileSpreadsheet,
   Files,
-  Gift,
   Home,
   KeyRound,
   LifeBuoy,
@@ -40,12 +39,10 @@ type Tile = {
   description: string;
   icon: LucideIcon;
   href?: string;
-  featured?: boolean;
 };
 
 const tiles: Tile[] = [
-  { id: "accepted-offer", label: "Accepted Offer", description: "Record a client or property that was just accepted.", icon: BadgeCheck, featured: true },
-  { id: "client-gifts", label: "Client Gifts to Be Prepped", description: "Ask the team to prepare a client gift.", icon: Gift },
+  { id: "accepted-offer", label: "Accepted Offer", description: "Record a client or property that was just accepted.", icon: BadgeCheck },
   { id: "pond", label: "Request Pond Access", description: "Ask to be added to the pond.", icon: KeyRound },
   { id: "remove-pond", label: "Remove from Pond", description: "Ask to be removed from the pond.", icon: UserMinus },
   { id: "open-house", label: "Open House Availability", description: "Open the shared availability form.", icon: DoorOpen, href: openHouseLink.href },
@@ -65,9 +62,6 @@ const tiles: Tile[] = [
 
 const tileClass =
   "group flex min-h-12 min-w-0 items-center gap-2.5 rounded-xl border border-[#e6e1d8] bg-white px-3 py-2 text-left shadow-[0_1px_2px_rgba(28,28,28,0.04)] transition duration-200 hover:-translate-y-px hover:border-[#d9d0c4] hover:shadow-[0_10px_24px_rgba(28,28,28,0.06)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a8875a]";
-
-const featuredClass =
-  "col-span-2 border-[#c4ad8a] bg-[#fbf8f3] sm:col-span-2";
 
 function fileHref(listing: LinkedListing, id: string): string {
   if (id === "mls") return listing.mlsUrl;
@@ -177,7 +171,7 @@ export function ActionBoard({
                     target="_blank"
                     rel="noopener noreferrer"
                     title={tile.description}
-                    className={`${tileClass} ${tile.featured ? featuredClass : ""}`}
+                    className={tileClass}
                   >
                     {inner}
                   </a>
@@ -188,7 +182,7 @@ export function ActionBoard({
                   key={tile.id}
                   type="button"
                   title={tile.description}
-                  className={`${tileClass} ${tile.featured ? featuredClass : ""}`}
+                  className={tileClass}
                   onClick={() => setOpenId(tile.id)}
                 >
                   {inner}
